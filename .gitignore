@@ -4,3 +4,6 @@ output/
 artifacts/
 cache/
 typechain-types/
+
+.vercel
+.env*
