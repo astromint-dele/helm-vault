@@ -1,0 +1,78 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { BrowserProvider } from "ethers";
+
+const X_LAYER_CHAIN_ID_HEX = "0xc4"; // 196
+const X_LAYER_PARAMS = {
+  chainId: X_LAYER_CHAIN_ID_HEX,
+  chainName: "X Layer",
+  nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
+  rpcUrls: ["https://xlayerrpc.okx.com"],
+  blockExplorerUrls: ["https://www.oklink.com/x-layer"],
+};
+
+export function useWallet() {
+  const [address, setAddress] = useState(null);
+  const [chainOk, setChainOk] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const connect = useCallback(async () => {
+    setError(null);
+    if (typeof window === "undefined" || !window.ethereum) {
+      setError("No wallet found. Install an X Layer compatible wallet.");
+      return;
+    }
+    setConnecting(true);
+    try {
+      const provider = new BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      if (!accounts?.length) throw new Error("No account returned by the wallet.");
+      setAddress(accounts[0]);
+
+      const network = await provider.getNetwork();
+      if (network.chainId !== 196n) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: X_LAYER_CHAIN_ID_HEX }],
+          });
+        } catch (switchErr) {
+          if (switchErr.code === 4902) {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [X_LAYER_PARAMS],
+            });
+          } else {
+            throw switchErr;
+          }
+        }
+      }
+      setChainOk(true);
+    } catch (err) {
+      setError(err.message || "Could not connect wallet.");
+      setAddress(null);
+      setChainOk(false);
+    } finally {
+      setConnecting(false);
+    }
+  }, []);
+
+  const signApproval = useCallback(
+    async (vaultAddress) => {
+      if (!address || typeof window === "undefined" || !window.ethereum) {
+        throw new Error("Wallet not connected.");
+      }
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const timestamp = Date.now();
+      const message = `Approve Helm trade for vault ${vaultAddress} at ${timestamp}`;
+      const signature = await signer.signMessage(message);
+      return { signerAddress: address, signature, timestamp };
+    },
+    [address]
+  );
+
+  return { address, chainOk, connecting, error, connect, signApproval };
+}

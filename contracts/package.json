@@ -1,0 +1,23 @@
+{
+  "name": "helm-contracts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Helm Policy Vault — Solidity contracts for X Layer",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network xlayerTestnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network xlayerMainnet",
+    "execute-trade:mainnet": "hardhat run scripts/execute-trade.js --network xlayerMainnet",
+    "generate-wallet": "node scripts/generate-wallet.js",
+    "generate-agent-wallet": "node scripts/generate-agent-wallet.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2"
+  }
+}

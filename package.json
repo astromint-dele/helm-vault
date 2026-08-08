@@ -1,0 +1,17 @@
+{
+  "name": "helm",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Helm — AI portfolio desk for tokenized assets on X Layer (OKX BuildX AI Season hackathon)",
+  "scripts": {
+    "list-tokens": "node scripts/01-list-tokens.js",
+    "quotes": "node scripts/02-get-quotes.js",
+    "agent-loop": "node scripts/agent-loop.js",
+    "test-agent-loop-approval": "node scripts/test-agent-loop-approval.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.0"
+  }
+}
