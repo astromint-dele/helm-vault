@@ -57,6 +57,11 @@ export default function Home() {
         </div>
       </div>
 
+      <p className="disclosure-line">
+        This is a live vault on X Layer mainnet, operated by Helm&apos;s builder. You&apos;re viewing real holdings
+        and real trades.
+      </p>
+
       {wallet.error && <div className="error-banner" style={{ marginTop: 16 }}>{wallet.error}</div>}
 
       {!state && !loadError && <p className="loading-line">Reading vault state</p>}
@@ -69,7 +74,13 @@ export default function Home() {
             <NavSentinelPanel navStatus={state.proposal.navStatus} holdings={state.proposal.drift.holdings} />
           </div>
           <div className="col">
-            <ProposalPanel proposal={state.proposal} vaultAddress={state.vaultAddress} wallet={wallet} onExecuted={load} />
+            <ProposalPanel
+              proposal={state.proposal}
+              vaultAddress={state.vaultAddress}
+              ownerAddress={state.ownerAddress}
+              wallet={wallet}
+              onExecuted={load}
+            />
           </div>
         </div>
       )}

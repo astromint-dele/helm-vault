@@ -358,6 +358,15 @@ Vercel platform behavior for previews specifically, not a project setting.
 ## Roadmap (named next steps, not implemented — described here so nothing above reads as
 more finished than it is)
 
+- **Vault factory for per-user vaults.** Today there is exactly one `PolicyVault`, owned by
+  and hardcoded to the builder — every visitor to the live site sees the same one vault and
+  the same one owner's holdings, by design, for this hackathon's scope (see README's Vercel
+  deployment notes). Turning this into a product other people can actually use needs a
+  factory contract that deploys a fresh `PolicyVault` per user (their own policy, their own
+  funds, their own owner address), plus a frontend that resolves "which vault" from the
+  connected wallet instead of a single hardcoded address. Real scope: factory contract,
+  deploy-on-first-connect (or explicit "create your vault") flow, and the frontend/API
+  routes reading `ownerAddress`/`vaultAddress` per-connection instead of from one constant.
 - **Live percentage-of-value caps enforced onchain.** Today's `maxHoldingAmount` is a raw
   token-unit ceiling (see "Policy correction" above for why). Making it a true live-% cap
   needs the contract to trust a price source — either a real oracle (Chainlink-style, if

@@ -68,8 +68,19 @@ export function useWallet() {
       const signer = await provider.getSigner();
       const timestamp = Date.now();
       const message = `Approve Helm trade for vault ${vaultAddress} at ${timestamp}`;
-      const signature = await signer.signMessage(message);
-      return { signerAddress: address, signature, timestamp };
+      try {
+        const signature = await signer.signMessage(message);
+        return { signerAddress: address, signature, timestamp };
+      } catch (err) {
+        // ethers' own error messages here embed a verbose info={...} object (and, for a
+        // rejected signMessage, no useful payload at all) — never surface that raw, always
+        // translate to a plain sentence.
+        const isUserRejection = err.code === "ACTION_REJECTED" || err.code === 4001 || err.info?.error?.code === 4001;
+        if (isUserRejection) {
+          throw new Error("You declined the signature. Nothing was executed.");
+        }
+        throw new Error(err.shortMessage || "Could not get a signature from your wallet.");
+      }
     },
     [address]
   );

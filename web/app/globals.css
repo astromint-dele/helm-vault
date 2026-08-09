@@ -179,6 +179,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0; /* flex/grid items default to min-width:auto, which lets long unbroken
+                   content (an error message, a long proposal line) push the column wider
+                   than its track instead of wrapping inside it */
 }
 
 .panel {
@@ -186,6 +189,7 @@ button {
   border: 1px solid var(--hairline);
   border-radius: 8px;
   padding: 22px;
+  overflow-wrap: anywhere;
 }
 
 .panel-title {
@@ -407,6 +411,10 @@ button {
   background: var(--refused-bright);
 }
 
+.nav-dot.na {
+  background: var(--fog-dim);
+}
+
 .nav-asset {
   font-size: 14px;
   font-weight: 600;
@@ -529,6 +537,12 @@ button {
   font-size: 13px;
   padding: 40px 0;
   text-align: center;
+}
+
+.disclosure-line {
+  font-size: 13px;
+  color: var(--fog-dim);
+  padding: 14px 0 0;
 }
 
 .footnote {

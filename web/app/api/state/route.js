@@ -1,4 +1,5 @@
 import { loadRootEnv } from "../../server/env.js";
+import { OWNER_ADDRESS } from "../../server/owner.js";
 
 loadRootEnv();
 
@@ -32,7 +33,7 @@ export async function GET(request) {
 
   try {
     const proposal = await generateRebalanceProposal(vaultAddress, { navThresholdOverride });
-    return new Response(jsonSafe({ ok: true, vaultAddress, proposal }), {
+    return new Response(jsonSafe({ ok: true, vaultAddress, ownerAddress: OWNER_ADDRESS, proposal }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {

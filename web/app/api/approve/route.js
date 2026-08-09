@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { loadRootEnv } from "../../server/env.js";
+import { OWNER_ADDRESS } from "../../server/owner.js";
 
 loadRootEnv();
 
@@ -7,7 +8,6 @@ const { generateRebalanceProposal } = await import("../../../../lib/rebalancePro
 const { executeTrade } = await import("../../../../lib/executeTrade.js");
 
 const DEFAULT_VAULT_ADDRESS = "0x03ceDFA7dd7E7274882fffE52d6f1a164F563d0b";
-const OWNER_ADDRESS = process.env.OWNER_ADDRESS || "0x6eDFf2BC9D55dfe839bA2666e6D4653dE21875AB";
 const SIGNATURE_MAX_AGE_MS = 2 * 60 * 1000;
 
 function buildMessage(vaultAddress, timestamp) {

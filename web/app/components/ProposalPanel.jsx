@@ -11,11 +11,14 @@ function formatTradeStatement(trade) {
   return `Sell ${fromPart} into ${toPart}.`;
 }
 
-export default function ProposalPanel({ proposal, vaultAddress, wallet, onExecuted }) {
+export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wallet, onExecuted }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [dismissed, setDismissed] = useState(false);
+
+  const isNonOwnerWallet =
+    wallet.address && ownerAddress && wallet.address.toLowerCase() !== ownerAddress.toLowerCase();
 
   if (proposal.action === "nav_blocked") {
     const blockedNav = Object.values(proposal.navStatus).find((n) => n.status === "block");
@@ -66,6 +69,9 @@ export default function ProposalPanel({ proposal, vaultAddress, wallet, onExecut
       if (!wallet.address) {
         throw new Error("Connect a wallet before approving.");
       }
+      if (isNonOwnerWallet) {
+        throw new Error("Only the vault owner's wallet can approve trades.");
+      }
       const approval = await wallet.signApproval(vaultAddress);
       const res = await fetch("/api/approve", {
         method: "POST",
@@ -96,7 +102,14 @@ export default function ProposalPanel({ proposal, vaultAddress, wallet, onExecut
         {proposal.explanation}
       </p>
 
-      {!result && (
+      {!result && isNonOwnerWallet && (
+        <p className="empty-state">
+          This is a live demo of the builder&apos;s vault. Only the owner&apos;s wallet can approve trades, so
+          you can view this proposal but not act on it.
+        </p>
+      )}
+
+      {!result && !isNonOwnerWallet && (
         <div className="proposal-actions">
           <button className="btn-approve" onClick={handleApprove} disabled={submitting}>
             {submitting ? "Approving trade" : "Approve trade"}
