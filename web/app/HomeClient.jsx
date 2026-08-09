@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useWallet } from "./hooks/useWallet.js";
-import HelmWheel from "./components/HelmWheel.jsx";
+import AgentPanel from "./components/AgentPanel.jsx";
 import HoldingsPanel from "./components/HoldingsPanel.jsx";
 import NavSentinelPanel from "./components/NavSentinelPanel.jsx";
 import ProposalPanel from "./components/ProposalPanel.jsx";
@@ -15,13 +15,13 @@ function truncate(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-}
-
-// initialState is server-rendered (see page.js) so the very first paint already has real
-// data, or an honest error, baked into the HTML — never a loading spinner that can hang
-// forever if the client-side fetch stalls.
+// initialState is server-rendered (via VaultDataServer, streamed in behind a Suspense
+// boundary — see page.js) so the very first data this component ever holds is either real,
+// or an honest error — never a loading placeholder with nothing behind it. The wallet
+// connect button lives here (not in the always-instant topbar in page.js) so there's only
+// ever one useWallet() call in the tree; splitting it across the instant shell and this
+// component would mean two independent, unsynchronized connection states, and connecting in
+// the topbar wouldn't unlock Approve below.
 export default function HomeClient({ initialState, initialError }) {
   const wallet = useWallet();
   const [state, setState] = useState(initialState);
@@ -30,7 +30,7 @@ export default function HomeClient({ initialState, initialError }) {
 
   // No auto-poll: a passive viewer costs zero OKX calls, and every open tab was previously
   // multiplying quote requests by re-fetching every 30s whether or not anyone was looking.
-  // The initial server-rendered load plus this manual refresh are the only triggers now.
+  // The server-rendered initial load plus this manual refresh are the only triggers now.
   const load = useCallback(async () => {
     setRefreshing(true);
     const controller = new AbortController();
@@ -55,35 +55,16 @@ export default function HomeClient({ initialState, initialError }) {
   }, []);
 
   return (
-    <div className="shell">
-      <div className="topbar">
-        <div className="brand">
-          <HelmWheel size={22} drift />
-          <span className="brand-name">Helm</span>
-        </div>
-        <div className="topbar-right">
-          <div className="chain-chip">
-            <span className="chain-dot" />
-            X Layer
-          </div>
-          {wallet.address ? (
-            <button className="wallet-btn mono">{truncate(wallet.address)}</button>
-          ) : (
-            <button className="wallet-btn disconnected" onClick={wallet.connect} disabled={wallet.connecting}>
-              {wallet.connecting ? "Connecting" : "Connect owner wallet to approve"}
-            </button>
-          )}
-        </div>
+    <>
+      <div className="wallet-row">
+        {wallet.address ? (
+          <button className="wallet-btn mono">{truncate(wallet.address)}</button>
+        ) : (
+          <button className="wallet-btn disconnected" onClick={wallet.connect} disabled={wallet.connecting}>
+            {wallet.connecting ? "Connecting" : "Connect owner wallet to approve"}
+          </button>
+        )}
       </div>
-
-      <p className="disclosure-line">
-        This page shows one vault on X Layer mainnet, owned and operated by Helm&apos;s builder, not your personal
-        wallet. Connecting only checks whether you&apos;re that vault&apos;s owner, to enable approving trades.
-      </p>
-      <p className="disclosure-line">
-        Funds live inside this vault contract because Helm&apos;s rules, like allocation limits and price checks,
-        can only be enforced on funds the contract actually holds.
-      </p>
 
       {wallet.error && <div className="error-banner" style={{ marginTop: 16 }}>{wallet.error}</div>}
 
@@ -99,15 +80,13 @@ export default function HomeClient({ initialState, initialError }) {
       )}
 
       {state && (
-        <div className="refresh-row">
-          <span className="mono">
-            Prices confirmed {formatTime(state.generatedAt)}
-            {state.stale ? " (stale: could not reach OKX for a fresh read, showing the last confirmed prices)" : ""}
-          </span>
-          <button className="refresh-btn mono" onClick={load} disabled={refreshing}>
-            {refreshing ? "Refreshing" : "Refresh"}
-          </button>
-        </div>
+        <AgentPanel
+          holdingsCount={state.proposal.drift.holdings.length}
+          generatedAt={state.generatedAt}
+          stale={state.stale}
+          onRefresh={load}
+          refreshing={refreshing}
+        />
       )}
 
       {state && (
@@ -127,11 +106,6 @@ export default function HomeClient({ initialState, initialError }) {
           </div>
         </div>
       )}
-
-      <p className="footnote">
-        Reads and writes go directly through the existing drift, NAV Sentinel, and execution modules. Nothing here
-        duplicates that logic.
-      </p>
-    </div>
+    </>
   );
 }

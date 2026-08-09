@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import RefusedPanel from "./RefusedPanel.jsx";
+import { describeTrade } from "../lib/formatTrade.js";
+
+const EXPLANATION_SOURCE_LABEL = {
+  llm: "Explained by Gemini, generated for this check.",
+  cache: "Explained by Gemini, reused from a matching check moments ago.",
+  fallback: "Template explanation. Gemini was unavailable for this check.",
+};
 
 function formatTradeStatement(trade) {
-  const fromIsCash = trade.fromSymbol === "USDG";
-  const toIsCash = trade.toSymbol === "USDG";
-  const fromPart = fromIsCash ? `$${trade.amountHuman.toFixed(2)} cash` : `${trade.amountHuman.toFixed(6)} ${trade.fromSymbol}`;
-  const toPart = toIsCash ? "cash" : trade.toSymbol;
-  return `Sell ${fromPart} into ${toPart}.`;
+  const phrase = describeTrade(trade);
+  return phrase.charAt(0).toUpperCase() + phrase.slice(1) + ".";
 }
 
 export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wallet, onExecuted }) {
@@ -100,6 +104,9 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
         {proposal.trade.fromDriftPct > 0 ? "over" : "under"} target. <strong>{proposal.trade.toSymbol}</strong> is{" "}
         {Math.abs(proposal.trade.toDriftPct).toFixed(1)} points {proposal.trade.toDriftPct > 0 ? "over" : "under"} target.{" "}
         {proposal.explanation}
+      </p>
+      <p className="ai-attribution mono">
+        {EXPLANATION_SOURCE_LABEL[proposal.explanationSource] || EXPLANATION_SOURCE_LABEL.fallback}
       </p>
 
       {!result && isNonOwnerWallet && (

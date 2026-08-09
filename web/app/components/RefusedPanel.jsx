@@ -1,11 +1,10 @@
 import HelmWheel from "./HelmWheel.jsx";
+import { describeTrade } from "../lib/formatTrade.js";
 
+// Past tense for "Would have {phrase}" — describeTrade always starts with "buy " or "sell ".
 function formatTradeStatement(trade) {
-  const fromIsCash = trade.fromSymbol === "USDG";
-  const toIsCash = trade.toSymbol === "USDG";
-  const fromPart = fromIsCash ? `$${trade.amountHuman.toFixed(2)} cash` : `${trade.amountHuman.toFixed(6)} ${trade.fromSymbol}`;
-  const toPart = toIsCash ? "cash" : trade.toSymbol;
-  return `sold ${fromPart} into ${toPart}`;
+  const phrase = describeTrade(trade);
+  return phrase.startsWith("buy ") ? "bought" + phrase.slice(3) : "sold" + phrase.slice(4);
 }
 
 // The signature moment. This is the entire product thesis in one view, so it takes over
