@@ -590,19 +590,32 @@ input {
 
 /* ---------- instruct box ---------- */
 
+.badge-soon {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--caution);
+  background: var(--caution-bg);
+  border: 1px solid rgba(217, 130, 46, 0.4);
+  border-radius: 20px;
+  padding: 4px 12px;
+  white-space: nowrap;
+}
+
 .instruct-input {
   width: 100%;
   font-size: 14px;
-  color: var(--fog);
+  color: var(--fog-dim);
   background: var(--deck-raised);
-  border: 1px solid var(--hairline);
+  border: 1px dashed var(--hairline);
   border-radius: 6px;
   padding: 12px 14px;
 }
 
 .instruct-input:disabled {
   cursor: not-allowed;
-  opacity: 0.8;
+  opacity: 0.45;
 }
 
 .instruct-actions {
@@ -611,6 +624,11 @@ input {
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 14px;
+}
+
+.instruct-actions .btn-approve:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
 }
 
 .instruct-helper {
