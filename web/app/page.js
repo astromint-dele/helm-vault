@@ -11,12 +11,21 @@ function truncate(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
+function formatTime(iso) {
+  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
 export default function Home() {
   const wallet = useWallet();
   const [state, setState] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
+  // No auto-poll: a passive viewer costs zero OKX calls, and every open tab was previously
+  // multiplying quote requests by re-fetching every 30s whether or not anyone was looking.
+  // The one-time load on mount plus this manual refresh are the only triggers now.
   const load = useCallback(async () => {
+    setRefreshing(true);
     try {
       const query = typeof window !== "undefined" ? window.location.search : "";
       const res = await fetch(`/api/state${query}`, { cache: "no-store" });
@@ -26,13 +35,13 @@ export default function Home() {
       setLoadError(null);
     } catch (err) {
       setLoadError(err.message || "Could not load vault state.");
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
   useEffect(() => {
     load();
-    const id = setInterval(load, 30_000);
-    return () => clearInterval(id);
   }, [load]);
 
   return (
@@ -70,6 +79,18 @@ export default function Home() {
 
       {!state && !loadError && <p className="loading-line">Reading vault state</p>}
       {loadError && <div className="error-banner" style={{ marginTop: 24 }}>{loadError}</div>}
+
+      {state && (
+        <div className="refresh-row">
+          <span className="mono">
+            Prices confirmed {formatTime(state.generatedAt)}
+            {state.stale ? " (stale: could not reach OKX for a fresh read, showing the last confirmed prices)" : ""}
+          </span>
+          <button className="refresh-btn mono" onClick={load} disabled={refreshing}>
+            {refreshing ? "Refreshing" : "Refresh"}
+          </button>
+        </div>
+      )}
 
       {state && (
         <div className="main-grid">

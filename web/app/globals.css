@@ -160,6 +160,33 @@ button {
   border: none;
 }
 
+/* ---------- refresh row ---------- */
+
+.refresh-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 20px 0 0;
+  font-size: 12px;
+  color: var(--fog-dim);
+}
+
+.refresh-btn {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--parchment);
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+}
+
 /* ---------- main grid ---------- */
 
 .main-grid {
