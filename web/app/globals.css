@@ -541,7 +541,9 @@ button {
 
 .disclosure-line {
   font-size: 13px;
-  color: var(--fog-dim);
+  color: var(--fog);
+  line-height: 1.5;
+  max-width: 640px;
   padding: 14px 0 0;
 }
 

@@ -51,15 +51,19 @@ export default function Home() {
             <button className="wallet-btn mono">{truncate(wallet.address)}</button>
           ) : (
             <button className="wallet-btn disconnected" onClick={wallet.connect} disabled={wallet.connecting}>
-              {wallet.connecting ? "Connecting" : "Connect wallet"}
+              {wallet.connecting ? "Connecting" : "Connect owner wallet to approve"}
             </button>
           )}
         </div>
       </div>
 
       <p className="disclosure-line">
-        This is a live vault on X Layer mainnet, operated by Helm&apos;s builder. You&apos;re viewing real holdings
-        and real trades.
+        This page shows one vault on X Layer mainnet, owned and operated by Helm&apos;s builder, not your personal
+        wallet. Connecting only checks whether you&apos;re that vault&apos;s owner, to enable approving trades.
+      </p>
+      <p className="disclosure-line">
+        Funds live inside this vault contract because Helm&apos;s rules, like allocation limits and price checks,
+        can only be enforced on funds the contract actually holds.
       </p>
 
       {wallet.error && <div className="error-banner" style={{ marginTop: 16 }}>{wallet.error}</div>}
