@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import RefusedPanel from "./RefusedPanel.jsx";
-import { describeTrade } from "../lib/formatTrade.js";
 
 const EXPLANATION_SOURCE_LABEL = {
   llm: "Explained by Gemini, generated for this check.",
@@ -10,32 +8,33 @@ const EXPLANATION_SOURCE_LABEL = {
   fallback: "Template explanation. Gemini was unavailable for this check.",
 };
 
-function formatTradeStatement(trade) {
-  const phrase = describeTrade(trade);
-  return phrase.charAt(0).toUpperCase() + phrase.slice(1) + ".";
-}
+const STATUS_LABEL = {
+  rebalance: "Awaiting your decision",
+  none: "No action needed",
+  insufficient_funds: "Insufficient funds",
+};
 
+// nav_blocked is handled one level up (see HomeClient.jsx), it takes over the whole content
+// area rather than living inside this panel, matching the mockup's full refusal screen.
 export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wallet, onExecuted }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [declined, setDeclined] = useState(false);
 
   const isNonOwnerWallet =
     wallet.address && ownerAddress && wallet.address.toLowerCase() !== ownerAddress.toLowerCase();
 
-  if (proposal.action === "nav_blocked") {
-    const blockedNav = Object.values(proposal.navStatus).find((n) => n.status === "block");
-    return <RefusedPanel trade={proposal.trade} reason={proposal.navBlockReason} blockedNav={blockedNav} />;
-  }
-
   if (proposal.action === "none") {
     return (
       <div className="panel">
-        <p className="panel-title">Current proposal</p>
+        <div className="panel-header-row">
+          <p className="panel-title">Current proposal, written by Helm</p>
+          <p className="panel-title">{STATUS_LABEL.none}</p>
+        </div>
         <div className="empty-state">
           <strong>Portfolio is on target.</strong>
-          No holding has drifted past {proposal.driftThresholdPct} percent. Nothing to approve right now.
+          No holding has drifted past {proposal.driftThresholdPct} points. Nothing to approve right now.
         </div>
       </div>
     );
@@ -44,7 +43,10 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
   if (proposal.action === "insufficient_funds") {
     return (
       <div className="panel">
-        <p className="panel-title">Current proposal</p>
+        <div className="panel-header-row">
+          <p className="panel-title">Current proposal, written by Helm</p>
+          <p className="panel-title">{STATUS_LABEL.insufficient_funds}</p>
+        </div>
         <div className="empty-state">
           <strong>The vault needs a deposit.</strong>
           Holdings have drifted from target, but no asset has a spendable balance to sell. Send funds to the
@@ -54,12 +56,15 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
     );
   }
 
-  if (dismissed) {
+  if (declined) {
     return (
       <div className="panel">
-        <p className="panel-title">Current proposal</p>
+        <div className="panel-header-row">
+          <p className="panel-title">Current proposal, written by Helm</p>
+          <p className="panel-title">Declined</p>
+        </div>
         <div className="empty-state">
-          <strong>Proposal dismissed.</strong>
+          <strong>Proposal declined.</strong>
           It will be reconsidered on the next check.
         </div>
       </div>
@@ -97,17 +102,19 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
 
   return (
     <div className="panel">
-      <p className="panel-title">Current proposal</p>
-      <p className="proposal-statement">{formatTradeStatement(proposal.trade)}</p>
-      <p className="proposal-reasoning">
-        <strong>{proposal.trade.fromSymbol}</strong> is {Math.abs(proposal.trade.fromDriftPct).toFixed(1)} points{" "}
-        {proposal.trade.fromDriftPct > 0 ? "over" : "under"} target. <strong>{proposal.trade.toSymbol}</strong> is{" "}
-        {Math.abs(proposal.trade.toDriftPct).toFixed(1)} points {proposal.trade.toDriftPct > 0 ? "over" : "under"} target.{" "}
-        {proposal.explanation}
-      </p>
-      <p className="ai-attribution mono">
-        {EXPLANATION_SOURCE_LABEL[proposal.explanationSource] || EXPLANATION_SOURCE_LABEL.fallback}
-      </p>
+      <div className="panel-header-row">
+        <p className="panel-title">Current proposal, written by Helm</p>
+        <p className="panel-title">{result ? "Executed" : STATUS_LABEL.rebalance}</p>
+      </div>
+
+      {!result && (
+        <>
+          <p className="proposal-statement">{proposal.explanation}</p>
+          <p className="ai-attribution mono">
+            {EXPLANATION_SOURCE_LABEL[proposal.explanationSource] || EXPLANATION_SOURCE_LABEL.fallback}
+          </p>
+        </>
+      )}
 
       {!result && isNonOwnerWallet && (
         <p className="empty-state">
@@ -119,10 +126,10 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
       {!result && !isNonOwnerWallet && (
         <div className="proposal-actions">
           <button className="btn-approve" onClick={handleApprove} disabled={submitting}>
-            {submitting ? "Approving trade" : "Approve trade"}
+            {submitting ? "Approving" : "Approve"}
           </button>
-          <button className="btn-dismiss" onClick={() => setDismissed(true)} disabled={submitting}>
-            Dismiss
+          <button className="btn-dismiss" onClick={() => setDeclined(true)} disabled={submitting}>
+            Decline
           </button>
         </div>
       )}
@@ -131,10 +138,7 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
 
       {result && (
         <div className="confirm-banner">
-          Trade approved.{" "}
-          <span className="mono">
-            {result.trade.amountHuman.toFixed(6)} {result.trade.fromSymbol} for {result.trade.toSymbol}
-          </span>
+          <p className="confirm-text">{result.confirmation}</p>
         </div>
       )}
     </div>

@@ -39,11 +39,16 @@ export function toPlainJson(data) {
 
 export async function getVaultState({ vaultAddress, navThresholdOverride, demoBlockThreshold, demoWarnThreshold }) {
   const { generateRebalanceProposal } = await import("../../../lib/rebalanceProposal.js");
+  const { getVaultMeta } = await import("../../../lib/driftCalculator.js");
+  const { DEFAULT_BLOCK_THRESHOLD_PCT } = await import("../../../lib/navSentinel.js");
   const cacheKey = `${vaultAddress}:${demoBlockThreshold || ""}:${demoWarnThreshold || ""}`;
   const isDemoRequest = Boolean(navThresholdOverride);
 
   try {
-    const proposal = await generateRebalanceProposal(vaultAddress, { navThresholdOverride });
+    const [proposal, meta] = await Promise.all([
+      generateRebalanceProposal(vaultAddress, { navThresholdOverride }),
+      getVaultMeta(vaultAddress),
+    ]);
 
     // generateRebalanceProposal can itself fall back to templated explanation text (its own
     // self-imposed LLM rate gate, tripped by a concurrent request on a *different* warm
@@ -72,6 +77,9 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
       ok: true,
       vaultAddress,
       ownerAddress: OWNER_ADDRESS,
+      agentAddress: meta.agentAddress,
+      currentBlock: meta.blockNumber,
+      navBlockThresholdPct: navThresholdOverride?.blockThresholdPct ?? DEFAULT_BLOCK_THRESHOLD_PCT,
       generatedAt: new Date().toISOString(),
       stale: false,
       proposal,

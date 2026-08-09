@@ -6,6 +6,7 @@ loadRootEnv();
 
 const { generateRebalanceProposal } = await import("../../../../lib/rebalanceProposal.js");
 const { executeTrade } = await import("../../../../lib/executeTrade.js");
+const { buildTradeConfirmation } = await import("../../../../lib/confirmationText.js");
 
 const DEFAULT_VAULT_ADDRESS = "0x03ceDFA7dd7E7274882fffE52d6f1a164F563d0b";
 const SIGNATURE_MAX_AGE_MS = 2 * 60 * 1000;
@@ -65,7 +66,7 @@ export async function POST(request) {
   }
 
   if (proposal.action !== "rebalance") {
-    return jsonError(409, `No approvable trade right now (current state: ${proposal.action}). Refresh and try again.`);
+    return jsonError(409, `No approvable trade right now (current state ${proposal.action}). Refresh and try again.`);
   }
 
   try {
@@ -76,6 +77,22 @@ export async function POST(request) {
       toTokenAddress: proposal.trade.toAddress,
       amountHuman: proposal.trade.amountHuman,
     });
+
+    // Helm speaks on this outcome too, not only refusal — deterministic, built from what
+    // actually executed (amountOut, the real result), not the pre-trade proposal numbers.
+    const priorToHolding = proposal.drift.holdings.find(
+      (h) => h.address.toLowerCase() === proposal.trade.toAddress.toLowerCase()
+    );
+    const confirmation = buildTradeConfirmation({
+      fromSymbol: proposal.trade.fromSymbol,
+      toSymbol: proposal.trade.toSymbol,
+      amountInHuman: proposal.trade.amountHuman,
+      toDecimals: proposal.trade.toDecimals,
+      amountOutRaw: result.amountOut,
+      priorToBalance: priorToHolding?.balance ?? 0,
+      txHash: result.txHash,
+    });
+
     return new Response(
       JSON.stringify({
         ok: true,
@@ -83,6 +100,7 @@ export async function POST(request) {
         amountIn: result.amountIn?.toString(),
         amountOut: result.amountOut?.toString(),
         trade: proposal.trade,
+        confirmation,
       }),
       { headers: { "Content-Type": "application/json" } }
     );

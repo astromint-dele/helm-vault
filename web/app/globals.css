@@ -67,6 +67,11 @@ button {
   cursor: pointer;
 }
 
+input {
+  font-family: inherit;
+  color: inherit;
+}
+
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
@@ -92,18 +97,6 @@ button {
   justify-content: space-between;
   padding: 20px 0;
   border-bottom: 1px solid var(--hairline);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-name {
-  font-family: var(--display);
-  font-size: 22px;
-  color: var(--parchment);
 }
 
 .topbar-right {
@@ -160,12 +153,6 @@ button {
   border: none;
 }
 
-.wallet-row {
-  display: flex;
-  justify-content: flex-end;
-  padding: 20px 0 0;
-}
-
 .refresh-btn {
   font-family: var(--data);
   font-size: 12px;
@@ -180,9 +167,61 @@ button {
   opacity: 0.6;
 }
 
-/* ---------- agent panel (the "instrument" moment for the normal state) ---------- */
+/* ---------- identity block ---------- */
 
-.agent-panel {
+.identity-block {
+  padding: 32px 0 0;
+}
+
+.identity-name {
+  font-family: var(--display);
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--parchment);
+  margin: 0;
+  line-height: 1;
+}
+
+.identity-tagline {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--brass);
+  margin: 10px 0 0;
+}
+
+.identity-description {
+  font-size: 14px;
+  color: var(--fog);
+  line-height: 1.6;
+  max-width: 640px;
+  margin: 12px 0 0;
+}
+
+/* ---------- disclosure box ---------- */
+
+.disclosure-box {
+  margin-top: 20px;
+  padding: 18px 20px;
+  background: var(--deck);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+
+.disclosure-line {
+  font-size: 13px;
+  color: var(--fog);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.disclosure-line + .disclosure-line {
+  margin-top: 10px;
+}
+
+/* ---------- standing watch panel ---------- */
+
+.watch-panel {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -193,30 +232,42 @@ button {
   border-radius: 8px;
 }
 
-.agent-panel-body {
+.watch-panel-body {
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  flex: 1;
 }
 
-.agent-panel-name {
+.watch-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--data);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   font-size: 11px;
   text-transform: uppercase;
   color: var(--brass);
   margin: 0;
 }
 
-.agent-panel-pipeline {
+.watch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--steady);
+  animation: chain-pulse 3.6s ease-in-out infinite;
+}
+
+.watch-panel-line {
   font-size: 14px;
   color: var(--parchment);
   line-height: 1.5;
   margin: 0;
 }
 
-.agent-panel-status {
+.watch-panel-status {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -228,7 +279,7 @@ button {
 }
 
 @media (max-width: 560px) {
-  .agent-panel {
+  .watch-panel {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -237,7 +288,6 @@ button {
 /* ---------- main grid ---------- */
 
 .main-grid {
-  padding: 28px 0 56px;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 20px;
@@ -264,6 +314,7 @@ button {
   border-radius: 8px;
   padding: 22px;
   overflow-wrap: anywhere;
+  margin-top: 20px;
 }
 
 .panel-title {
@@ -272,48 +323,27 @@ button {
   font-size: 11px;
   text-transform: uppercase;
   color: var(--fog);
-  margin: 0 0 16px;
+  margin: 0;
 }
 
-/* ---------- holdings table ---------- */
-
-.holdings-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.holdings-table th {
-  text-align: left;
-  font-size: 11px;
-  color: var(--fog-dim);
-  font-weight: 500;
-  padding: 0 0 10px;
-  border-bottom: 1px solid var(--hairline);
-}
-
-.holdings-table th.num,
-.holdings-table td.num {
-  text-align: right;
-}
-
-.holdings-table td {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--hairline);
-  vertical-align: middle;
-}
-
-.holdings-table tr:last-child td {
-  border-bottom: none;
+.panel-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .asset-name {
   font-size: 15px;
   font-weight: 600;
+  margin: 0;
 }
 
 .asset-role {
   font-size: 12px;
   color: var(--fog-dim);
+  margin: 2px 0 0;
 }
 
 .num-cell {
@@ -322,44 +352,151 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.drift-value {
-  font-family: var(--data);
-  font-size: 13px;
+/* ---------- holdings against target (bars) ---------- */
+
+.holding-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 84px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline);
 }
 
-.drift-value.over {
+.holding-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.holding-row:first-child {
+  padding-top: 0;
+}
+
+.holding-bar-caption {
+  font-size: 11px;
+  color: var(--fog-dim);
+  margin: 0 0 6px;
+}
+
+.holding-track {
+  position: relative;
+  height: 6px;
+  background: var(--deck-raised);
+  border-radius: 3px;
+}
+
+.holding-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--brass);
+  border-radius: 3px;
+}
+
+.holding-target-marker {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 14px;
+  background: var(--parchment);
+  transform: translateX(-1px);
+}
+
+.holding-drift-col {
+  text-align: right;
+}
+
+.holding-drift-value {
+  font-size: 14px;
+  margin: 0;
+}
+
+.holding-drift-value.outside {
   color: var(--caution);
 }
 
-.drift-value.under {
-  color: var(--fog);
+.holding-drift-value.inside {
+  color: var(--steady);
 }
 
-.drift-value.match {
+.holding-drift-label {
+  font-size: 11px;
+  color: var(--fog-dim);
+  margin: 2px 0 0;
+}
+
+@media (max-width: 480px) {
+  .holding-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .holding-drift-col {
+    text-align: left;
+  }
+}
+
+/* ---------- price fairness table ---------- */
+
+.fairness-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fairness-table th {
+  text-align: left;
+  font-size: 11px;
+  color: var(--fog-dim);
+  font-weight: 500;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.fairness-table th.num,
+.fairness-table td.num {
+  text-align: right;
+}
+
+.fairness-table td {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+.fairness-table tr:last-child td {
+  border-bottom: none;
+}
+
+.fairness-reason {
+  font-size: 12px;
+  color: var(--fog);
+  line-height: 1.4;
+  margin: 4px 0 0;
+  max-width: 220px;
+}
+
+.fairness-na {
+  color: var(--fog-dim);
+  font-size: 13px;
+}
+
+.fairness-spread {
   color: var(--steady);
+}
+
+.fairness-spread.hot {
+  color: var(--refused-bright);
 }
 
 /* ---------- proposal panel ---------- */
 
 .proposal-statement {
   font-family: var(--display);
-  font-size: 26px;
-  line-height: 1.3;
+  font-size: 24px;
+  line-height: 1.4;
   color: var(--parchment);
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   text-wrap: balance;
-}
-
-.proposal-reasoning {
-  font-size: 14px;
-  color: var(--fog);
-  line-height: 1.6;
-  margin: 0 0 8px;
-}
-
-.proposal-reasoning strong {
-  color: var(--parchment);
-  font-weight: 600;
 }
 
 .ai-attribution {
@@ -407,20 +544,19 @@ button {
 }
 
 .confirm-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-  padding: 12px 14px;
+  margin-top: 4px;
+  padding: 16px 18px;
   background: var(--steady-bg);
   border: 1px solid rgba(0, 200, 138, 0.35);
   border-radius: 6px;
-  font-size: 13px;
-  color: var(--steady);
 }
 
-.confirm-banner .mono {
+.confirm-text {
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.5;
   color: var(--parchment);
+  margin: 0;
 }
 
 .error-banner {
@@ -452,136 +588,132 @@ button {
   margin-bottom: 8px;
 }
 
-/* ---------- nav sentinel panel ---------- */
+/* ---------- instruct box ---------- */
 
-.nav-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--hairline);
-}
-
-.nav-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.nav-row:first-child {
-  padding-top: 0;
-}
-
-.nav-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-top: 6px;
-  flex-shrink: 0;
-}
-
-.nav-dot.ok {
-  background: var(--steady);
-}
-
-.nav-dot.warn {
-  background: var(--caution);
-}
-
-.nav-dot.block {
-  background: var(--refused-bright);
-}
-
-.nav-dot.na {
-  background: var(--fog-dim);
-}
-
-.nav-asset {
+.instruct-input {
+  width: 100%;
   font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 3px;
-}
-
-.nav-reason {
-  font-size: 13px;
   color: var(--fog);
-  line-height: 1.5;
-  margin: 0;
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px 14px;
 }
 
-.nav-deviation {
-  font-family: var(--data);
-  font-size: 12px;
-  color: var(--fog-dim);
-  margin-top: 4px;
+.instruct-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
-/* ---------- refused state ---------- */
-
-.panel-refused {
-  background: linear-gradient(180deg, rgba(192, 69, 58, 0.1), rgba(192, 69, 58, 0.03));
-  border: 1px solid rgba(192, 69, 58, 0.4);
-  padding: 28px 24px;
-}
-
-.refused-head {
+.instruct-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
 }
 
-.refused-title {
-  font-family: var(--display);
-  font-size: 28px;
-  color: var(--refused-bright);
+.instruct-helper {
+  font-size: 12px;
+  color: var(--fog-dim);
   margin: 0;
 }
 
-.refused-would {
-  font-size: 14px;
-  color: var(--fog-dim);
-  margin: 0 0 8px;
-  text-decoration: line-through;
-  text-decoration-color: var(--fog-dim);
-}
+/* ---------- refusal screen ---------- */
 
-.refused-reason {
-  font-size: 15px;
-  color: var(--parchment);
-  line-height: 1.6;
-  margin: 0 0 20px;
-}
-
-.refused-reason strong {
-  color: var(--refused-bright);
-  font-family: var(--data);
-  font-weight: 600;
-}
-
-.refused-meta {
+.refusal-screen {
+  margin-top: 20px;
+  padding: 64px 24px;
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  padding-top: 16px;
-  border-top: 1px solid rgba(192, 69, 58, 0.25);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
-.refused-meta-item .label {
+.refusal-wheel {
+  filter: drop-shadow(0 0 32px rgba(79, 174, 122, 0.35));
+}
+
+.refusal-label {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fog-dim);
+  margin: 20px 0 0;
+}
+
+.refusal-headline {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.35;
+  color: var(--parchment);
+  max-width: 620px;
+  margin: 12px 0 0;
+}
+
+.refusal-reason {
+  font-size: 15px;
+  color: var(--fog);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 16px 0 0;
+}
+
+.refusal-figures {
+  display: flex;
+  gap: 32px;
+  margin-top: 28px;
+  padding: 18px 28px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--deck);
+}
+
+.refusal-figure .label {
   font-size: 11px;
   color: var(--fog-dim);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 4px;
+  text-align: center;
 }
 
-.refused-meta-item .value {
-  font-family: var(--data);
-  font-size: 17px;
+.refusal-figure .value {
+  font-size: 18px;
   color: var(--parchment);
+  margin: 0;
+  text-align: center;
 }
 
-.refused-meta-item .value.hot {
+.refusal-figure .value.hot {
   color: var(--refused-bright);
+}
+
+.refusal-retry {
+  font-size: 12px;
+  color: var(--fog-dim);
+  margin-top: 18px;
+}
+
+.btn-acknowledge {
+  margin-top: 20px;
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--parchment);
+  background: none;
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+  padding: 12px 24px;
+}
+
+.btn-acknowledge:hover:not(:disabled) {
+  background: rgba(79, 174, 122, 0.12);
+}
+
+.btn-acknowledge:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ---------- helm wheel (SVG, see HelmWheel.jsx) ---------- */
@@ -649,17 +781,18 @@ button {
   }
 }
 
-.disclosure-line {
-  font-size: 13px;
-  color: var(--fog);
-  line-height: 1.5;
-  max-width: 640px;
-  padding: 14px 0 0;
-}
-
 .footnote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   font-size: 13px;
   color: var(--fog-dim);
-  padding: 0 0 48px;
+  padding: 32px 0 48px;
   line-height: 1.6;
+}
+
+.footnote-vault {
+  color: var(--fog-dim);
 }

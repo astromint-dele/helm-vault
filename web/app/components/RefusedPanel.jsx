@@ -1,42 +1,46 @@
 import HelmWheel from "./HelmWheel.jsx";
-import { describeTrade } from "../lib/formatTrade.js";
 
-// Past tense for "Would have {phrase}" — describeTrade always starts with "buy " or "sell ".
-function formatTradeStatement(trade) {
-  const phrase = describeTrade(trade);
-  return phrase.startsWith("buy ") ? "bought" + phrase.slice(3) : "sold" + phrase.slice(4);
+function truncate(address) {
+  return `${address.slice(0, 6)}_${address.slice(-4)}`;
 }
 
-// The signature moment. This is the entire product thesis in one view, so it takes over
-// the panel completely rather than adding a warning badge to the normal proposal layout.
-export default function RefusedPanel({ trade, reason, blockedNav }) {
+// The signature moment, full width, taking over the content area entirely rather than
+// sitting inside the normal panel grid, matching the mockup. headline and reason are both
+// real: headline is built deterministically in lib/rebalanceProposal.js from the actual
+// symbol that failed the check, reason is the same reason string the price fairness table
+// would otherwise show for that asset.
+export default function RefusedPanel({ headline, reason, blockedNav, vaultAddress, onAcknowledge, acknowledging }) {
   return (
-    <div className="panel panel-refused">
-      <div className="refused-head">
-        <HelmWheel size={52} locked />
-        <h2 className="refused-title">Trade refused</h2>
+    <div className="refusal-screen">
+      <div className="refusal-wheel">
+        <HelmWheel size={110} locked />
       </div>
-      {trade && <p className="refused-would">Would have {formatTradeStatement(trade)}</p>}
-      <p className="refused-reason">{reason}</p>
+      <p className="refusal-label mono">Trade refused by Helm</p>
+      <h2 className="refusal-headline">{headline}</h2>
+      <p className="refusal-reason">{reason}</p>
       {blockedNav && typeof blockedNav.deviationPct === "number" && (
-        <div className="refused-meta">
-          <div className="refused-meta-item">
-            <p className="label">Onchain price</p>
-            <p className="value mono">${blockedNav.onchainPrice.toFixed(2)}</p>
+        <div className="refusal-figures">
+          <div className="refusal-figure">
+            <p className="label">Onchain</p>
+            <p className="value mono">{blockedNav.onchainPrice.toFixed(2)}</p>
           </div>
-          <div className="refused-meta-item">
-            <p className="label">Real price</p>
-            <p className="value mono">${blockedNav.realPrice.toFixed(2)}</p>
+          <div className="refusal-figure">
+            <p className="label">Market</p>
+            <p className="value mono">{blockedNav.realPrice.toFixed(2)}</p>
           </div>
-          <div className="refused-meta-item">
-            <p className="label">Deviation</p>
+          <div className="refusal-figure">
+            <p className="label">Spread</p>
             <p className="value hot mono">
               {blockedNav.deviationPct > 0 ? "+" : "−"}
-              {Math.abs(blockedNav.deviationPct).toFixed(1)}%
+              {Math.abs(blockedNav.deviationPct).toFixed(2)}%
             </p>
           </div>
         </div>
       )}
+      <p className="refusal-retry mono">{truncate(vaultAddress)}. Helm will check again when you refresh.</p>
+      <button className="btn-acknowledge" onClick={onAcknowledge} disabled={acknowledging}>
+        {acknowledging ? "Checking again" : "Acknowledge and return to watch"}
+      </button>
     </div>
   );
 }
