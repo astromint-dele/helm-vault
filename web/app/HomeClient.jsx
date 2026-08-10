@@ -8,7 +8,7 @@ import PriceFairnessTable from "./components/PriceFairnessTable.jsx";
 import ProposalPanel from "./components/ProposalPanel.jsx";
 import InstructBox from "./components/InstructBox.jsx";
 import RefusedPanel from "./components/RefusedPanel.jsx";
-import DemoRefusalBanner from "./components/DemoRefusalBanner.jsx";
+import DemoUnavailablePanel from "./components/DemoUnavailablePanel.jsx";
 
 const FETCH_TIMEOUT_MS = 20_000; // the slowest real cold request observed was ~18s (a fresh
 // LLM call plus OKX retries with no warm cache at all); this sits above that with margin
@@ -85,6 +85,23 @@ export default function HomeClient({ initialState, initialError }) {
     );
   }
 
+  // A demo was requested (?demoBlockThreshold=) but there's genuinely nothing to refuse
+  // right now (converged holdings, or no checkable holding at all) — must never silently
+  // fall through to the normal page, that read as the trigger button doing nothing, and
+  // (with the tightened demo threshold still technically active) the normal page's own
+  // price fairness numbers would show real spreads as exceeding a limit that only exists
+  // because of this same demo request.
+  if (proposal.navDemoUnavailable) {
+    return (
+      <DemoUnavailablePanel
+        reason={proposal.navDemoUnavailableReason}
+        vaultAddress={state.vaultAddress}
+        onAcknowledge={load}
+        acknowledging={refreshing}
+      />
+    );
+  }
+
   return (
     <>
       <StandingWatchPanel
@@ -93,8 +110,6 @@ export default function HomeClient({ initialState, initialError }) {
         onRefresh={load}
         refreshing={refreshing}
       />
-
-      <DemoRefusalBanner />
 
       {/* Keyed on generatedAt so a fresh successful load fully remounts this panel,
           clearing any stale approved/declined/error state from the previous proposal —

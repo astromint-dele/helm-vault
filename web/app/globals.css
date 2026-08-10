@@ -4,8 +4,8 @@
   --deck-raised: #1e2838;
   --hairline: #2a3549;
   --parchment: #ece6d8;
-  --fog: #8b93a8;
-  --fog-dim: #5c6478;
+  --fog: #a3acc0;
+  --fog-dim: #7d869c;
   --brass: #4fae7a;
   --focus: #7bcf9e;
 
@@ -38,7 +38,7 @@ body {
   background: var(--harbor);
   color: var(--parchment);
   font-family: var(--body);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -110,7 +110,7 @@ input {
   align-items: center;
   gap: 7px;
   font-family: var(--data);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fog);
   padding: 6px 12px;
   border: 1px solid var(--hairline);
@@ -161,7 +161,7 @@ input {
 
 .wallet-disconnect {
   font-family: var(--body);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fog-dim);
   background: none;
   border: none;
@@ -176,7 +176,7 @@ input {
 
 .refresh-btn {
   font-family: var(--data);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--parchment);
   background: var(--deck-raised);
   border: 1px solid var(--hairline);
@@ -212,7 +212,7 @@ input {
 }
 
 .identity-description {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fog);
   line-height: 1.6;
   max-width: 640px;
@@ -230,9 +230,9 @@ input {
 }
 
 .disclosure-line {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fog);
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
 }
 
@@ -261,6 +261,7 @@ input {
   flex: 1;
 }
 
+/* Small, mono, all caps — deliberately kept small, this is a label, not content. */
 .watch-panel-header {
   display: flex;
   align-items: center;
@@ -282,7 +283,7 @@ input {
 }
 
 .watch-panel-line {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--parchment);
   line-height: 1.5;
   margin: 0;
@@ -295,7 +296,7 @@ input {
   gap: 16px;
   flex-wrap: wrap;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fog-dim);
 }
 
@@ -338,6 +339,8 @@ input {
   margin-top: 20px;
 }
 
+/* Small, mono, all caps labels stay small everywhere in this file — that's their whole
+   job, distinguishing a label from the content it labels. Only the content gets bigger. */
 .panel-title {
   font-family: var(--data);
   letter-spacing: 0.1em;
@@ -353,23 +356,27 @@ input {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 
 .asset-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
 }
 
 .asset-role {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fog-dim);
   margin: 2px 0 0;
 }
 
+/* The numbers are the evidence, per the legibility pass — deliberately larger and bolder
+   than ordinary body text, not just tabular-aligned. */
 .num-cell {
   font-family: var(--data);
-  font-size: 14px;
+  font-size: 18px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -377,10 +384,10 @@ input {
 
 .holding-row {
   display: grid;
-  grid-template-columns: 96px 1fr 84px;
+  grid-template-columns: 100px 1fr 90px;
   align-items: center;
   gap: 16px;
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--hairline);
 }
 
@@ -394,7 +401,7 @@ input {
 }
 
 .holding-bar-caption {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fog-dim);
   margin: 0 0 6px;
 }
@@ -429,7 +436,9 @@ input {
 }
 
 .holding-drift-value {
-  font-size: 14px;
+  font-family: var(--data);
+  font-size: 19px;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -442,9 +451,9 @@ input {
 }
 
 .holding-drift-label {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fog-dim);
-  margin: 2px 0 0;
+  margin: 3px 0 0;
 }
 
 @media (max-width: 480px) {
@@ -458,6 +467,34 @@ input {
 }
 
 /* ---------- price fairness table ---------- */
+
+.fairness-vault-header {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hairline);
+}
+
+.fairness-header-right {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Quiet by design, this is what replaced the amber banner — a control belongs next to the
+   panel it demonstrates, styled like a plain link, not a competing call to action. */
+.fairness-demo-link {
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--fog-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fairness-demo-link:hover {
+  color: var(--brass);
+}
 
 .fairness-table {
   width: 100%;
@@ -479,7 +516,7 @@ input {
 }
 
 .fairness-table td {
-  padding: 14px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--hairline);
   vertical-align: top;
 }
@@ -488,32 +525,204 @@ input {
   border-bottom: none;
 }
 
-.fairness-reason {
+/* The reason lives behind a native <details>, per the legibility pass — three numbers and
+   a verdict are the panel's job, the explanation is one click away, not four lines by
+   default. No JS state needed, <details> already does this natively and accessibly. */
+.fairness-details {
+  margin-top: 4px;
+}
+
+.fairness-details summary {
+  cursor: pointer;
   font-size: 12px;
+  color: var(--fog-dim);
+  list-style: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  width: fit-content;
+}
+
+.fairness-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.fairness-details summary::marker {
+  content: "";
+}
+
+.fairness-details[open] summary {
   color: var(--fog);
-  line-height: 1.4;
-  margin: 4px 0 0;
-  max-width: 220px;
+}
+
+.fairness-reason {
+  font-size: 13px;
+  color: var(--fog);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  max-width: 260px;
 }
 
 .fairness-na {
   color: var(--fog-dim);
-  font-size: 13px;
+  font-size: 15px;
 }
 
+/* Neutral by default (parchment, no strong color) — a spread only earns color when the
+   real check says warn or block, so color actually means something instead of every row
+   looking equally important (or equally alarming). */
 .fairness-spread {
-  color: var(--steady);
+  font-family: var(--data);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--parchment);
+}
+
+.fairness-spread.warn {
+  color: var(--caution);
 }
 
 .fairness-spread.hot {
   color: var(--refused-bright);
 }
 
+/* ---------- public price check ---------- */
+
+.public-check {
+  margin-bottom: 4px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.public-check-title {
+  font-family: var(--display);
+  font-size: 20px;
+  color: var(--parchment);
+  margin: 0;
+}
+
+.public-check-line {
+  font-size: 14px;
+  color: var(--fog);
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.public-check-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.public-check-input {
+  flex: 1;
+  min-width: 180px;
+  font-size: 15px;
+  color: var(--parchment);
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.public-check-btn {
+  flex-shrink: 0;
+  padding: 12px 22px;
+}
+
+.public-check-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.public-check-chip {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--fog);
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 5px 12px;
+}
+
+.public-check-chip:hover:not(:disabled) {
+  border-color: var(--brass);
+  color: var(--parchment);
+}
+
+.public-check-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.public-check-note {
+  font-size: 13px;
+  color: var(--fog-dim);
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
+.public-check-result {
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+
+.public-check-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.public-check-verdict {
+  font-family: var(--data);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--parchment);
+  margin: 0;
+}
+
+.public-check-verdict.ok {
+  color: var(--steady);
+}
+
+.public-check-verdict.warn {
+  color: var(--caution);
+}
+
+.public-check-verdict.block {
+  color: var(--refused-bright);
+}
+
+.public-check-verdict.na {
+  color: var(--fog-dim);
+}
+
+/* Descendant selector, deliberately more specific than .refusal-figures alone (which this
+   is combined with in the JSX) — two equal-specificity single-class rules would otherwise
+   have the later one in the file win regardless of which makes more sense here. */
+.public-check-result .refusal-figures {
+  margin-top: 14px;
+  padding: 14px 18px;
+}
+
+.public-check-result .fairness-reason {
+  max-width: none;
+  margin-top: 12px;
+}
+
 /* ---------- proposal panel ---------- */
 
 .action-line {
   font-family: var(--display);
-  font-size: 26px;
+  font-size: 27px;
   line-height: 1.35;
   color: var(--fog);
   margin: 0 0 14px;
@@ -531,15 +740,17 @@ input {
   font-weight: 600;
 }
 
+/* The one thing a visitor must read, per the legibility pass — noticeably larger than
+   ordinary secondary text, not the smallest thing in its own panel anymore. */
 .proposal-statement {
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.6;
-  color: var(--fog);
-  margin: 0 0 10px;
+  color: var(--parchment);
+  margin: 0 0 12px;
 }
 
 .ai-attribution {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fog-dim);
   margin: 0 0 24px;
 }
@@ -554,7 +765,7 @@ input {
 .btn-approve {
   font-family: var(--body);
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--harbor);
   background: var(--brass);
   border: none;
@@ -573,7 +784,7 @@ input {
 
 .btn-dismiss {
   font-family: var(--body);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fog);
   background: none;
   border: none;
@@ -592,7 +803,7 @@ input {
 
 .confirm-text {
   font-family: var(--display);
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.5;
   color: var(--parchment);
   margin: 0;
@@ -607,14 +818,14 @@ input {
   background: var(--refused-bg);
   border: 1px solid rgba(192, 69, 58, 0.4);
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--refused-bright);
   line-height: 1.5;
 }
 
 .empty-state {
   color: var(--fog);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
@@ -644,7 +855,7 @@ input {
 
 .instruct-input {
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fog-dim);
   background: var(--deck-raised);
   border: 1px dashed var(--hairline);
@@ -671,7 +882,7 @@ input {
 }
 
 .instruct-helper {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fog-dim);
   margin: 0;
 }
@@ -710,7 +921,7 @@ input {
 }
 
 .refusal-reason {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--fog);
   line-height: 1.6;
   max-width: 520px;
@@ -737,7 +948,9 @@ input {
 }
 
 .refusal-figure .value {
-  font-size: 18px;
+  font-family: var(--data);
+  font-size: 22px;
+  font-weight: 600;
   color: var(--parchment);
   margin: 0;
   text-align: center;
@@ -748,7 +961,7 @@ input {
 }
 
 .refusal-retry {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fog-dim);
   margin-top: 18px;
 }
@@ -756,7 +969,7 @@ input {
 .btn-acknowledge {
   margin-top: 20px;
   font-family: var(--body);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--parchment);
   background: none;
   border: 1px solid var(--brass);
@@ -771,49 +984,6 @@ input {
 .btn-acknowledge:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* ---------- demo refusal trigger ---------- */
-
-.demo-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  padding: 18px 22px;
-  background: var(--caution-bg);
-  border: 1px solid rgba(217, 130, 46, 0.35);
-  border-radius: 8px;
-}
-
-.demo-banner-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--parchment);
-  margin: 0 0 4px;
-}
-
-.demo-banner-line {
-  font-size: 12px;
-  color: var(--fog);
-  line-height: 1.5;
-  margin: 0;
-  max-width: 460px;
-}
-
-.demo-banner-btn {
-  flex-shrink: 0;
-  margin-top: 0;
-  display: inline-block;
-  text-decoration: none;
-  text-align: center;
-  border-color: var(--caution);
-}
-
-.demo-banner-btn:hover {
-  background: rgba(217, 130, 46, 0.15);
 }
 
 /* ---------- helm wheel (SVG, see HelmWheel.jsx) ---------- */
@@ -846,7 +1016,7 @@ input {
 .loading-line {
   color: var(--fog-dim);
   font-family: var(--data);
-  font-size: 13px;
+  font-size: 14px;
   padding: 40px 0;
   text-align: center;
 }
@@ -887,7 +1057,7 @@ input {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fog-dim);
   padding: 32px 0 48px;
   line-height: 1.6;

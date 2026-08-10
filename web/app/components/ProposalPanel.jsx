@@ -12,6 +12,7 @@ const STATUS_LABEL = {
   rebalance: "Awaiting your decision",
   none: "No action needed",
   insufficient_funds: "Insufficient funds",
+  no_underweight_asset: "No trade target yet",
 };
 
 // Deterministic, built directly from proposal.trade, not parsed out of the LLM's free text
@@ -79,8 +80,29 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
         </div>
         <div className="empty-state">
           <strong>The vault needs a deposit.</strong>
-          Holdings have drifted from target, but no asset has a spendable balance to sell. Send funds to the
-          vault to let the agent rebalance.
+          Holdings have drifted from target, but nothing overweight has a spendable balance to sell. Send
+          funds to the vault to let the agent rebalance.
+        </div>
+      </div>
+    );
+  }
+
+  // Distinct from insufficient_funds: an asset is overweight enough to sell, but nothing
+  // else is underweight enough yet to be worth trading into. Not a funds problem, so it
+  // gets its own honest label and copy instead of reusing "needs a deposit".
+  if (proposal.action === "no_underweight_asset") {
+    const o = proposal.overweightHint;
+    return (
+      <div className="panel">
+        <div className="panel-header-row">
+          <p className="panel-title">Current proposal, written by Helm</p>
+          <p className="panel-title">{STATUS_LABEL.no_underweight_asset}</p>
+        </div>
+        <div className="empty-state">
+          <strong>Nothing underweight enough to trade into.</strong>
+          {o
+            ? `${o.symbol} has drifted ${Math.abs(o.driftPct).toFixed(1)} points above its ${o.targetPct.toFixed(1)}% target, but every other holding is already close enough to its own target.`
+            : "One holding has drifted above target, but every other holding is already close enough to its own target."}
         </div>
       </div>
     );
