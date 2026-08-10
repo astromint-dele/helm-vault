@@ -59,6 +59,16 @@ export function useWallet() {
     }
   }, []);
 
+  // There is no real cross-site "disconnect" in the wallet-extension model, MetaMask itself
+  // still remembers this site is authorized until revoked from within the extension. This
+  // clears Helm's own connection state, so the UI honestly shows disconnected and requires
+  // an explicit reconnect rather than silently carrying the previous session forward.
+  const disconnect = useCallback(() => {
+    setAddress(null);
+    setChainOk(false);
+    setError(null);
+  }, []);
+
   const signApproval = useCallback(
     async (vaultAddress) => {
       if (!address || typeof window === "undefined" || !window.ethereum) {
@@ -85,5 +95,5 @@ export function useWallet() {
     [address]
   );
 
-  return { address, chainOk, connecting, error, connect, signApproval };
+  return { address, chainOk, connecting, error, connect, disconnect, signApproval };
 }

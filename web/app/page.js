@@ -62,7 +62,7 @@ export default async function Page({ searchParams }) {
         </Suspense>
 
         <p className="footnote">
-          Helm never executes without a confirmed fair price.
+          Helm refuses to trade whenever the onchain price drifts too far from the real one.
           <span className="footnote-vault mono">vault {truncate(vaultAddress)}</span>
         </p>
       </div>

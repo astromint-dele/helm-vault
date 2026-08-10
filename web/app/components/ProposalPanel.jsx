@@ -14,6 +14,36 @@ const STATUS_LABEL = {
   insufficient_funds: "Insufficient funds",
 };
 
+// Deterministic, built directly from proposal.trade, not parsed out of the LLM's free text
+// (which would be fragile and could highlight the wrong thing). This is what lets a reader
+// see the actual action at a glance, with the flowing explanation underneath as detail.
+function ActionLine({ trade }) {
+  const fromIsCash = trade.fromSymbol === "USDG";
+  const toIsCash = trade.toSymbol === "USDG";
+  if (fromIsCash) {
+    return (
+      <p className="action-line">
+        <span className="action-verb">Buy</span> <span className="action-symbol">{trade.toSymbol}</span> with{" "}
+        <span className="action-amount">${trade.amountHuman.toFixed(2)}</span> cash
+      </p>
+    );
+  }
+  if (toIsCash) {
+    return (
+      <p className="action-line">
+        <span className="action-verb">Sell</span> <span className="action-amount">{trade.amountHuman.toFixed(6)}</span>{" "}
+        <span className="action-symbol">{trade.fromSymbol}</span> for cash
+      </p>
+    );
+  }
+  return (
+    <p className="action-line">
+      <span className="action-verb">Sell</span> <span className="action-amount">{trade.amountHuman.toFixed(6)}</span>{" "}
+      <span className="action-symbol">{trade.fromSymbol}</span> for <span className="action-symbol">{trade.toSymbol}</span>
+    </p>
+  );
+}
+
 // nav_blocked is handled one level up (see HomeClient.jsx), it takes over the whole content
 // area rather than living inside this panel, matching the mockup's full refusal screen.
 export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wallet, onExecuted }) {
@@ -109,6 +139,7 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
 
       {!result && (
         <>
+          <ActionLine trade={proposal.trade} />
           <p className="proposal-statement">{proposal.explanation}</p>
           <p className="ai-attribution mono">
             {EXPLANATION_SOURCE_LABEL[proposal.explanationSource] || EXPLANATION_SOURCE_LABEL.fallback}

@@ -8,6 +8,7 @@ import PriceFairnessTable from "./components/PriceFairnessTable.jsx";
 import ProposalPanel from "./components/ProposalPanel.jsx";
 import InstructBox from "./components/InstructBox.jsx";
 import RefusedPanel from "./components/RefusedPanel.jsx";
+import DemoRefusalBanner from "./components/DemoRefusalBanner.jsx";
 
 const FETCH_TIMEOUT_MS = 20_000; // the slowest real cold request observed was ~18s (a fresh
 // LLM call plus OKX retries with no warm cache at all); this sits above that with margin
@@ -77,6 +78,7 @@ export default function HomeClient({ initialState, initialError }) {
         reason={proposal.navBlockReason}
         blockedNav={blockedNav}
         vaultAddress={state.vaultAddress}
+        isDemo={state.isDemo}
         onAcknowledge={load}
         acknowledging={refreshing}
       />
@@ -92,7 +94,14 @@ export default function HomeClient({ initialState, initialError }) {
         refreshing={refreshing}
       />
 
+      <DemoRefusalBanner />
+
+      {/* Keyed on generatedAt so a fresh successful load fully remounts this panel,
+          clearing any stale approved/declined/error state from the previous proposal —
+          without this, a completed approval's confirmation banner never went away on its
+          own, and looked like Refresh wasn't doing anything beyond the block number. */}
       <ProposalPanel
+        key={state.generatedAt}
         proposal={proposal}
         vaultAddress={state.vaultAddress}
         ownerAddress={state.ownerAddress}

@@ -153,6 +153,27 @@ input {
   border: none;
 }
 
+.wallet-connected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-disconnect {
+  font-family: var(--body);
+  font-size: 11px;
+  color: var(--fog-dim);
+  background: none;
+  border: none;
+  padding: 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.wallet-disconnect:hover {
+  color: var(--fog);
+}
+
 .refresh-btn {
   font-family: var(--data);
   font-size: 12px;
@@ -490,13 +511,31 @@ input {
 
 /* ---------- proposal panel ---------- */
 
-.proposal-statement {
+.action-line {
   font-family: var(--display);
-  font-size: 24px;
-  line-height: 1.4;
-  color: var(--parchment);
-  margin: 0 0 10px;
+  font-size: 26px;
+  line-height: 1.35;
+  color: var(--fog);
+  margin: 0 0 14px;
   text-wrap: balance;
+}
+
+.action-verb {
+  color: var(--parchment);
+}
+
+.action-symbol,
+.action-amount {
+  font-family: var(--data);
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.proposal-statement {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fog);
+  margin: 0 0 10px;
 }
 
 .ai-attribution {
@@ -732,6 +771,49 @@ input {
 .btn-acknowledge:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ---------- demo refusal trigger ---------- */
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 18px 22px;
+  background: var(--caution-bg);
+  border: 1px solid rgba(217, 130, 46, 0.35);
+  border-radius: 8px;
+}
+
+.demo-banner-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--parchment);
+  margin: 0 0 4px;
+}
+
+.demo-banner-line {
+  font-size: 12px;
+  color: var(--fog);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 460px;
+}
+
+.demo-banner-btn {
+  flex-shrink: 0;
+  margin-top: 0;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  border-color: var(--caution);
+}
+
+.demo-banner-btn:hover {
+  background: rgba(217, 130, 46, 0.15);
 }
 
 /* ---------- helm wheel (SVG, see HelmWheel.jsx) ---------- */

@@ -9,7 +9,14 @@ function truncate(address) {
 export default function WalletButton() {
   const wallet = useWalletContext();
   if (wallet.address) {
-    return <button className="wallet-btn mono">{truncate(wallet.address)}</button>;
+    return (
+      <div className="wallet-connected">
+        <button className="wallet-btn mono">{truncate(wallet.address)}</button>
+        <button className="wallet-disconnect" onClick={wallet.disconnect}>
+          Disconnect
+        </button>
+      </div>
+    );
   }
   return (
     <button className="wallet-btn disconnected" onClick={wallet.connect} disabled={wallet.connecting}>

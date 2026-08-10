@@ -73,13 +73,23 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
       }
     }
 
+    // The displayed "limit" is read from a real check result, not a static constant, since
+    // the effective threshold now depends on whether that asset's market is open or closed
+    // (see lib/navSentinel.js). Falls back to the default only when nothing in the portfolio
+    // has an applicable check (e.g. only cash and xBTC, both "na").
+    const checkedNav = Object.values(proposal.navStatus).find(
+      (n) => n.status !== "na" && typeof n.blockThresholdPct === "number"
+    );
+    const navBlockThresholdPct = checkedNav?.blockThresholdPct ?? navThresholdOverride?.blockThresholdPct ?? DEFAULT_BLOCK_THRESHOLD_PCT;
+
     const body = toPlainJson({
       ok: true,
       vaultAddress,
       ownerAddress: OWNER_ADDRESS,
       agentAddress: meta.agentAddress,
       currentBlock: meta.blockNumber,
-      navBlockThresholdPct: navThresholdOverride?.blockThresholdPct ?? DEFAULT_BLOCK_THRESHOLD_PCT,
+      navBlockThresholdPct,
+      isDemo: isDemoRequest,
       generatedAt: new Date().toISOString(),
       stale: false,
       proposal,
