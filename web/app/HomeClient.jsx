@@ -143,7 +143,11 @@ export default function HomeClient({ initialState, initialError }) {
 
       <div className="main-grid">
         <div className="col">
-          <HoldingsBars holdings={proposal.drift.holdings} driftThresholdPct={proposal.driftThresholdPct} />
+          <HoldingsBars
+            holdings={proposal.drift.holdings}
+            driftThresholdPct={proposal.driftThresholdPct}
+            totalValueUSDG={proposal.drift.totalValueUSDG}
+          />
         </div>
         <div className="col">
           <PriceFairnessTable

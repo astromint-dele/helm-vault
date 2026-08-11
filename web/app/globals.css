@@ -382,6 +382,13 @@ input {
 
 /* ---------- holdings against target (bars) ---------- */
 
+.holdings-total {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--parchment);
+  margin: 0 0 18px;
+}
+
 .holding-row {
   display: grid;
   grid-template-columns: 100px 1fr 90px;
@@ -472,28 +479,6 @@ input {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--hairline);
-}
-
-.fairness-header-right {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-/* Quiet by design, this is what replaced the amber banner — a control belongs next to the
-   panel it demonstrates, styled like a plain link, not a competing call to action. */
-.fairness-demo-link {
-  font-family: var(--data);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--fog-dim);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.fairness-demo-link:hover {
-  color: var(--verdigris);
 }
 
 .fairness-table {

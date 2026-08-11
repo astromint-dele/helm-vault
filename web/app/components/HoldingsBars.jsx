@@ -7,16 +7,23 @@ const ROLE_BY_SYMBOL = {
   xBTC: "Crypto",
 };
 
+function formatUSDG(value) {
+  return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 // driftThresholdPct is the real value decideRebalanceAction uses to decide whether to
 // propose a trade at all (lib/rebalanceProposal.js), not a separately invented display
 // number, so "inside/outside band" here means exactly what it means to the agent.
-export default function HoldingsBars({ holdings, driftThresholdPct }) {
+// totalValueUSDG and each holding's valueUSDG are the same numbers the drift math itself
+// runs on (lib/driftCalculator.js's computeDrift), not a separate display-only estimate.
+export default function HoldingsBars({ holdings, driftThresholdPct, totalValueUSDG }) {
   return (
     <div className="panel">
       <div className="panel-header-row">
         <p className="panel-title">Holdings against target</p>
         <p className="panel-title">Tolerance band {driftThresholdPct.toFixed(2)} pt</p>
       </div>
+      <p className="holdings-total mono">{formatUSDG(totalValueUSDG)} total</p>
       {holdings.map((h) => {
         const outside = Math.abs(h.driftPct) > driftThresholdPct;
         return (
@@ -27,7 +34,7 @@ export default function HoldingsBars({ holdings, driftThresholdPct }) {
             </div>
             <div className="holding-bar-col">
               <p className="holding-bar-caption mono">
-                target {h.targetPct.toFixed(1)}% actual {h.actualPct.toFixed(1)}%
+                target {h.targetPct.toFixed(1)}% actual {h.actualPct.toFixed(1)}% · {formatUSDG(h.valueUSDG)}
               </p>
               <div className="holding-track">
                 <div className="holding-fill" style={{ width: `${Math.min(100, Math.max(0, h.actualPct))}%` }} />

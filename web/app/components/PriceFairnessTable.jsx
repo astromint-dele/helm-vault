@@ -28,12 +28,7 @@ export default function PriceFairnessTable({ navStatus, holdings, limitPct }) {
       <div className="fairness-vault-header">
         <div className="panel-header-row">
           <p className="panel-title">Price fairness, onchain against market</p>
-          <div className="fairness-header-right">
-            <p className="panel-title">Limit {limitPct}%</p>
-            <a href="?demoBlockThreshold=0" className="fairness-demo-link">
-              see it refuse a trade
-            </a>
-          </div>
+          <p className="panel-title">Limit {limitPct}%</p>
         </div>
         <table className="fairness-table">
           <thead>
