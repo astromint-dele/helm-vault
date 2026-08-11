@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import PanelsSkeleton from "./components/PanelsSkeleton.jsx";
 import WalletButton from "./components/WalletButton.jsx";
 import WalletError from "./components/WalletError.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
 import HowItWorks from "./components/HowItWorks.jsx";
 import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
 import VaultSwitcher from "./components/VaultSwitcher.jsx";
@@ -35,6 +36,7 @@ export default async function Page({ searchParams }) {
             <span className="chain-dot" />X Layer mainnet
           </div>
           <div className="topbar-right">
+            <ThemeToggle />
             <WalletButton />
           </div>
         </div>
@@ -84,7 +86,20 @@ export default async function Page({ searchParams }) {
 
         <p className="footnote">
           Helm refuses to trade whenever the onchain price drifts too far from the real one.
-          <span className="footnote-vault mono">vault {truncate(vaultAddress)}</span>
+          <span className="footnote-right">
+            <span className="footnote-vault mono">vault {truncate(vaultAddress)}</span>
+            <a
+              href="https://x.com/helm_vault"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footnote-x-link"
+              aria-label="Helm on X, @helm_vault"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                <path d="M18.9 2H22l-7.6 8.7L23.3 22h-7.1l-5.5-7.2L4.3 22H1.2l8.1-9.3L1 2h7.3l5 6.6L18.9 2Zm-1.2 18h1.9L6.4 3.9H4.4L17.7 20Z" />
+              </svg>
+            </a>
+          </span>
         </p>
       </div>
     </WalletProvider>
