@@ -4,6 +4,8 @@
 // copies that could drift out of sync, the same discipline applied to every other address
 // in this project after the mainnet deploy read real token addresses from chain instead of
 // letting them be retyped by hand.
+import { Contract } from "ethers";
+
 export const VAULT_FACTORY_ADDRESS = process.env.NEXT_PUBLIC_VAULT_FACTORY_ADDRESS || "0x0e276CC211F6e25a8Ec00222737C2e4D50145cb4";
 
 export const VAULT_FACTORY_ABI = [
@@ -19,7 +21,6 @@ export const VAULT_FACTORY_ABI = [
 // or wallet prompt needed, callers pass any ethers Provider (a JsonRpcProvider works fine,
 // this never needs the connected wallet's own provider specifically).
 export async function getVaultsForOwner(ownerAddress, provider) {
-  const { Contract } = await import("ethers");
   const factory = new Contract(VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI, provider);
   const count = Number(await factory.vaultsByOwnerCount(ownerAddress));
   const vaults = [];

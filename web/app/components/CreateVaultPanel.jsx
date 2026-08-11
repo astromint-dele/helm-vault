@@ -1,13 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { JsonRpcProvider } from "ethers";
 import { useWalletContext } from "../WalletProvider.jsx";
 import { PRESETS, getVaultsForOwner } from "../lib/vaultFactory.js";
 
 function truncate(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+// A real, full page navigation, not next/navigation's client router. That was tried first
+// and diagnosed as unreliable on this Next.js version specifically for a searchParams-only
+// change behind this page's Suspense boundary: the RSC fetch genuinely fired (confirmed via
+// a real browser's network log) and the server genuinely returned the right vault's data
+// (confirmed by inspecting the raw RSC payload directly), but the client never applied it,
+// the address bar and rendered content both stayed on the old vault. A full navigation is
+// the one path independently verified, repeatedly, end to end. useWallet's silent
+// eth_accounts restore on mount is what keeps this from costing a manual reconnect click.
+// The suggested alternative below (useRouter().push()) is the exact mechanism proven broken above.
+function goToVault(address) {
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.href = `?vault=${address}`;
 }
 
 // A plain read-only RPC connection, not the wallet's own injected provider - this lookup
@@ -22,15 +35,21 @@ const READ_PROVIDER = new JsonRpcProvider("https://xlayerrpc.okx.com", 196);
 // has no dependency on which vault (if any) is currently being viewed.
 export default function CreateVaultPanel() {
   const wallet = useWalletContext();
-  const router = useRouter();
   const [selected, setSelected] = useState(1); // Balanced, a reasonable default
   const [result, setResult] = useState(null); // { vaultAddress, txHash }
   const [error, setError] = useState(null);
   const [ownedVaults, setOwnedVaults] = useState(null); // null = not checked yet, [] = checked, none found
+  // Derived, not its own state: still null while the lookup is in flight, so "checking"
+  // is just "connected, and we don't have an answer yet" rather than a duplicated flag
+  // that could drift out of sync with ownedVaults itself.
+  const lookingUpVaults = Boolean(wallet.address) && ownedVaults === null;
 
   // Reconstructed straight from the factory's own registry every time a wallet connects,
   // not from anything stored in the browser - this is what answers "I closed the tab, can
-  // I find my vault again" without needing to remember a URL.
+  // I find my vault again" without needing to remember a URL. Several sequential real RPC
+  // reads (a count, then one per vault), so this genuinely takes a few seconds, hence the
+  // explicit loading state above rather than a silent gap that looks like nothing is
+  // happening.
   useEffect(() => {
     if (!wallet.address) return; // stale data from a prior connection is harmless, the render below is gated on wallet.address too
     let cancelled = false;
@@ -56,7 +75,6 @@ export default function CreateVaultPanel() {
     try {
       const outcome = await wallet.createVault(selected);
       setResult(outcome);
-      setOwnedVaults((prev) => (prev ? [...prev, outcome.vaultAddress] : [outcome.vaultAddress]));
     } catch (err) {
       setError(err.message || "Could not create the vault.");
     }
@@ -75,7 +93,13 @@ export default function CreateVaultPanel() {
         starting point instead of a blank form.
       </p>
 
-      {wallet.address && ownedVaults && ownedVaults.length > 0 && (
+      {wallet.address && lookingUpVaults && (
+        <p className="disclosure-line" style={{ marginBottom: 16 }}>
+          Checking the factory for vaults this wallet already owns...
+        </p>
+      )}
+
+      {wallet.address && !lookingUpVaults && ownedVaults && ownedVaults.length > 0 && (
         <div className="disclosure-box" style={{ marginBottom: 16 }}>
           <p className="disclosure-line">
             This wallet already owns {ownedVaults.length === 1 ? "a vault" : `${ownedVaults.length} vaults`}, found
@@ -85,7 +109,7 @@ export default function CreateVaultPanel() {
           <ul className="owned-vault-list">
             {ownedVaults.map((addr) => (
               <li key={addr}>
-                <button type="button" className="link-button mono" onClick={() => router.push(`?vault=${addr}`)}>
+                <button type="button" className="link-button mono" onClick={() => goToVault(addr)}>
                   {truncate(addr)}
                 </button>
               </li>
@@ -134,7 +158,7 @@ export default function CreateVaultPanel() {
             type="button"
             className="btn-approve"
             style={{ marginTop: 8 }}
-            onClick={() => router.push(`?vault=${result.vaultAddress}`)}
+            onClick={() => goToVault(result.vaultAddress)}
           >
             View your vault
           </button>

@@ -47,14 +47,16 @@ export default async function Page({ searchParams }) {
 
         <div className="disclosure-box">
           <p className="disclosure-line">
-            This page shows one vault on X Layer mainnet, owned and operated by Helm&apos;s builder, not your
-            personal wallet. Connecting only checks whether you&apos;re that vault&apos;s owner, to enable
-            approving trades.
+            This page opens on the builder&apos;s own vault on X Layer mainnet by default. Anyone can create
+            their own vault below, owned by whichever wallet creates it, never by Helm or its builder.
+            Connecting checks whether you&apos;re the owner of the vault currently shown, to enable approving
+            its trades.
           </p>
           <p className="disclosure-line">
-            Funds live inside this vault contract because Helm&apos;s rules, like allocation limits and price
-            checks, can only be enforced on funds the contract actually holds. Multi user vaults and retail
-            usage are both coming soon.
+            Funds always stay inside a vault contract its own owner controls, because Helm&apos;s rules, like
+            allocation limits and price checks, can only be enforced on funds a contract actually holds. Every
+            vault shares the same agent wallet, which can propose trades but never move funds without that
+            vault&apos;s owner signing first.
           </p>
         </div>
 

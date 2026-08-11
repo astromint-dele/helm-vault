@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BrowserProvider, Contract } from "ethers";
 import { VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI } from "../lib/vaultFactory.js";
 
@@ -18,6 +18,31 @@ export function useWallet() {
   const [chainOk, setChainOk] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
+
+  // Viewing a vault after creating it is a full page navigation (see CreateVaultPanel.jsx,
+  // switched away from client-side routing after that failed to reliably apply on this
+  // Next.js version), which drops this hook's React state. eth_accounts, unlike
+  // eth_requestAccounts, never prompts, it only returns an account if this site is already
+  // authorized, so this silently restores a connection that genuinely still exists rather
+  // than making every vault-to-vault navigation demand a fresh manual reconnect.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.ethereum) return;
+    let cancelled = false;
+    window.ethereum
+      .request({ method: "eth_accounts" })
+      .then(async (accounts) => {
+        if (cancelled || !accounts?.length) return;
+        const provider = new BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        if (cancelled) return;
+        setAddress(accounts[0]);
+        setChainOk(network.chainId === 196n);
+      })
+      .catch(() => {}); // silent restore only, a failure here just means "stay disconnected," not an error to surface
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const connect = useCallback(async () => {
     setError(null);
