@@ -20,14 +20,14 @@ function spreadClassName(status) {
 // market-closed notice, a stablecoin note, a no-underlying-equity note), never a fabricated
 // "feed" staleness claim. There is no feed in this system, prices come from a live onchain
 // quote and a live market read, compared once, at the moment this proposal was generated.
-export default function PriceFairnessTable({ navStatus, holdings, limitPct }) {
+export default function PriceFairnessTable({ navStatus, holdings, limitPct, xstockCount }) {
   const rows = holdings
     .map((h) => ({ ...h, nav: navStatus[h.address] }))
     .filter((r) => r.nav);
 
   return (
     <div className="panel">
-      <PublicPriceCheck />
+      <PublicPriceCheck xstockCount={xstockCount} />
 
       <div className="fairness-vault-header">
         <div className="panel-header-row">

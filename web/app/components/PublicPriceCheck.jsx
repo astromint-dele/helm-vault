@@ -10,7 +10,7 @@ const VERDICT_LABEL = { ok: "Fair", warn: "Caution", block: "Unfair", na: "Not a
 // gets real visual weight rather than being another quiet panel row. Calls the isolated
 // /api/price-check endpoint (its own OKX credentials, its own rate budget, see
 // lib/okxClient.js's createOkxClient) — never the vault's own state.
-export default function PublicPriceCheck() {
+export default function PublicPriceCheck({ xstockCount }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -56,7 +56,8 @@ export default function PublicPriceCheck() {
     <div className="public-check">
       <p className="public-check-title">Check any xStock, not just our four</p>
       <p className="public-check-line">
-        Real time, no wallet, no deposit. Works for any of the 641 xStocks on X Layer.
+        Real time, no wallet, no deposit. Works for any of the {xstockCount ?? "hundreds of"} xStocks on X
+        Layer.
       </p>
 
       <form className="public-check-form" onSubmit={handleSubmit}>

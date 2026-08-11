@@ -133,6 +133,7 @@ export default function HomeClient({ initialState, initialError }) {
             navStatus={proposal.navStatus}
             holdings={proposal.drift.holdings}
             limitPct={state.navBlockThresholdPct}
+            xstockCount={state.xstockCount}
           />
         </div>
       </div>
