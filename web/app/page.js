@@ -6,6 +6,7 @@ import HowItWorks from "./components/HowItWorks.jsx";
 import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
 import VaultSwitcher from "./components/VaultSwitcher.jsx";
 import PublicPriceCheck from "./components/PublicPriceCheck.jsx";
+import ExecutionSavings from "./components/ExecutionSavings.jsx";
 import VaultDataServer from "./VaultDataServer.jsx";
 import { WalletProvider } from "./WalletProvider.jsx";
 import { resolveVaultAddress } from "./server/vaultState.js";
@@ -72,8 +73,11 @@ export default async function Page({ searchParams }) {
           <VaultDataServer searchParams={sp} />
         </Suspense>
 
-        <div className="panel">
-          <PublicPriceCheck xstockCount={BACKED_XSTOCK_COUNT} />
+        <div className="even-grid">
+          <ExecutionSavings />
+          <div className="panel">
+            <PublicPriceCheck xstockCount={BACKED_XSTOCK_COUNT} />
+          </div>
         </div>
 
         <CreateVaultPanel />
