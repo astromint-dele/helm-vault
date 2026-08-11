@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import PanelsSkeleton from "./components/PanelsSkeleton.jsx";
 import WalletButton from "./components/WalletButton.jsx";
 import WalletError from "./components/WalletError.jsx";
+import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
 import VaultDataServer from "./VaultDataServer.jsx";
 import { WalletProvider } from "./WalletProvider.jsx";
 import { resolveVaultAddress } from "./server/vaultState.js";
@@ -56,6 +57,8 @@ export default async function Page({ searchParams }) {
             usage are both coming soon.
           </p>
         </div>
+
+        <CreateVaultPanel />
 
         <Suspense fallback={<PanelsSkeleton />}>
           <VaultDataServer searchParams={sp} />
