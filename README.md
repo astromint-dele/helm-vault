@@ -1,7 +1,8 @@
 # Helm
 
 AI portfolio desk for tokenized assets on X Layer. Built for OKX X Layer "BuildX AI Season".
-Handle: [@helmfi](https://x.com/helmfi).
+Handle: [@helm_vault](https://x.com/helm_vault). Repo:
+[github.com/astromint-dele/helm-vault](https://github.com/astromint-dele/helm-vault).
 
 ## Phase 0 — Verify
 
@@ -334,14 +335,16 @@ execute a stale trade, since the server always re-checks it.
 
 ### Vercel deployment
 
-Repo name and Vercel project name: **`helmfi-agent`**, exactly — the deployed production
-URL is controlled by the Vercel project name, not the repo name, and matches with no
-suffix or hash. `web/package.json`'s `name` field is already set to `helmfi-agent` to
-match, so if you connect this repo (or just `web/` as the project root, since it has its
-own lockfile) and import via Vercel, the suggested project name at setup should already
-be correct — confirm it before finishing setup rather than accepting a default blindly.
-Preview deployments (branches/PRs) will always carry a hash suffix regardless — that's a
-Vercel platform behavior for previews specifically, not a project setting.
+GitHub repo: [github.com/astromint-dele/helm-vault](https://github.com/astromint-dele/helm-vault).
+Vercel project name: **`helmfi-agent`** — the deployed production URL is controlled by the
+Vercel project name, not the repo name, so the two are allowed to differ (they do here:
+repo is `helm-vault`, Vercel project is `helmfi-agent`). `web/package.json`'s `name` field
+is already set to `helmfi-agent` to match the Vercel project, so if you connect this repo
+(or just `web/` as the project root, since it has its own lockfile) and import via Vercel,
+set the project name to `helmfi-agent` explicitly at setup rather than accepting whatever
+default it suggests from the repo name. Preview deployments (branches/PRs) will always
+carry a hash suffix regardless — that's a Vercel platform behavior for previews
+specifically, not a project setting.
 
 1. Set **Root Directory** to `web` in Vercel's project settings (the app lives in a
    subdirectory of the repo, not the repo root).
