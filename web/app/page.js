@@ -2,11 +2,14 @@ import { Suspense } from "react";
 import PanelsSkeleton from "./components/PanelsSkeleton.jsx";
 import WalletButton from "./components/WalletButton.jsx";
 import WalletError from "./components/WalletError.jsx";
+import HowItWorks from "./components/HowItWorks.jsx";
 import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
 import VaultSwitcher from "./components/VaultSwitcher.jsx";
+import PublicPriceCheck from "./components/PublicPriceCheck.jsx";
 import VaultDataServer from "./VaultDataServer.jsx";
 import { WalletProvider } from "./WalletProvider.jsx";
 import { resolveVaultAddress } from "./server/vaultState.js";
+import { BACKED_XSTOCK_COUNT } from "../../lib/navSentinel.js";
 
 function truncate(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -61,13 +64,19 @@ export default async function Page({ searchParams }) {
           </p>
         </div>
 
-        <VaultSwitcher currentVaultAddress={vaultAddress} />
+        <HowItWorks />
 
-        <CreateVaultPanel />
+        <VaultSwitcher currentVaultAddress={vaultAddress} />
 
         <Suspense fallback={<PanelsSkeleton />}>
           <VaultDataServer searchParams={sp} />
         </Suspense>
+
+        <div className="panel">
+          <PublicPriceCheck xstockCount={BACKED_XSTOCK_COUNT} />
+        </div>
+
+        <CreateVaultPanel />
 
         <p className="footnote">
           Helm refuses to trade whenever the onchain price drifts too far from the real one.

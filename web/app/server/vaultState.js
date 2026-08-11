@@ -41,7 +41,7 @@ export function toPlainJson(data) {
 export async function getVaultState({ vaultAddress, navThresholdOverride, demoBlockThreshold, demoWarnThreshold }) {
   const { generateRebalanceProposal } = await import("../../../lib/rebalanceProposal.js");
   const { getVaultMeta } = await import("../../../lib/driftCalculator.js");
-  const { DEFAULT_BLOCK_THRESHOLD_PCT, BACKED_XSTOCK_COUNT } = await import("../../../lib/navSentinel.js");
+  const { DEFAULT_BLOCK_THRESHOLD_PCT } = await import("../../../lib/navSentinel.js");
   const cacheKey = `${vaultAddress}:${demoBlockThreshold || ""}:${demoWarnThreshold || ""}`;
   const isDemoRequest = Boolean(navThresholdOverride);
 
@@ -119,7 +119,6 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
       agentAddress: meta.agentAddress,
       currentBlock: meta.blockNumber,
       navBlockThresholdPct,
-      xstockCount: BACKED_XSTOCK_COUNT,
       isDemo: isDemoRequest,
       generatedAt: new Date().toISOString(),
       stale: false,

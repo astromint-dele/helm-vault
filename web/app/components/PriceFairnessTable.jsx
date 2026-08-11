@@ -1,5 +1,3 @@
-import PublicPriceCheck from "./PublicPriceCheck.jsx";
-
 function truncate(address) {
   return `${address.slice(0, 6)}_${address.slice(-4)}`;
 }
@@ -20,15 +18,13 @@ function spreadClassName(status) {
 // market-closed notice, a stablecoin note, a no-underlying-equity note), never a fabricated
 // "feed" staleness claim. There is no feed in this system, prices come from a live onchain
 // quote and a live market read, compared once, at the moment this proposal was generated.
-export default function PriceFairnessTable({ navStatus, holdings, limitPct, xstockCount }) {
+export default function PriceFairnessTable({ navStatus, holdings, limitPct }) {
   const rows = holdings
     .map((h) => ({ ...h, nav: navStatus[h.address] }))
     .filter((r) => r.nav);
 
   return (
     <div className="panel">
-      <PublicPriceCheck xstockCount={xstockCount} />
-
       <div className="fairness-vault-header">
         <div className="panel-header-row">
           <p className="panel-title">Price fairness, onchain against market</p>

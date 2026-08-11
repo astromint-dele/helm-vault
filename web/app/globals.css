@@ -6,7 +6,7 @@
   --parchment: #ece6d8;
   --fog: #a3acc0;
   --fog-dim: #7d869c;
-  --brass: #4fae7a;
+  --verdigris: #4fae7a; /* renamed from --brass: this is the green patina brass takes on in sea air, not gold, the name lied about its own value before this */
   --focus: #7bcf9e;
 
   /* Steady is tuned toward OKX's product green, not independently verified in this
@@ -54,12 +54,12 @@ body {
 }
 
 ::selection {
-  background: var(--brass);
+  background: var(--verdigris);
   color: var(--harbor);
 }
 
 a {
-  color: var(--brass);
+  color: var(--verdigris);
 }
 
 button {
@@ -146,7 +146,7 @@ input {
 }
 
 .wallet-btn.disconnected {
-  background: var(--brass);
+  background: var(--verdigris);
   color: var(--harbor);
   font-family: var(--body);
   font-weight: 600;
@@ -207,7 +207,7 @@ input {
   font-family: var(--display);
   font-style: italic;
   font-size: 19px;
-  color: var(--brass);
+  color: var(--verdigris);
   margin: 10px 0 0;
 }
 
@@ -270,7 +270,7 @@ input {
   letter-spacing: 0.08em;
   font-size: 11px;
   text-transform: uppercase;
-  color: var(--brass);
+  color: var(--verdigris);
   margin: 0;
 }
 
@@ -418,7 +418,7 @@ input {
   top: 0;
   left: 0;
   height: 100%;
-  background: var(--brass);
+  background: var(--verdigris);
   border-radius: 3px;
 }
 
@@ -493,7 +493,7 @@ input {
 }
 
 .fairness-demo-link:hover {
-  color: var(--brass);
+  color: var(--verdigris);
 }
 
 .fairness-table {
@@ -588,9 +588,8 @@ input {
 /* ---------- public price check ---------- */
 
 .public-check {
-  margin-bottom: 4px;
-  padding-bottom: 22px;
-  border-bottom: 1px solid var(--hairline);
+  /* No margin/border here now, this used to sit above a table inside a shared panel and
+     needed separation from it, now it's the only thing in its own standalone panel. */
 }
 
 .public-check-title {
@@ -648,7 +647,7 @@ input {
 }
 
 .public-check-chip:hover:not(:disabled) {
-  border-color: var(--brass);
+  border-color: var(--verdigris);
   color: var(--parchment);
 }
 
@@ -736,7 +735,7 @@ input {
 .action-symbol,
 .action-amount {
   font-family: var(--data);
-  color: var(--brass);
+  color: var(--verdigris);
   font-weight: 600;
 }
 
@@ -767,7 +766,7 @@ input {
   font-weight: 600;
   font-size: 16px;
   color: var(--harbor);
-  background: var(--brass);
+  background: var(--verdigris);
   border: none;
   border-radius: 6px;
   padding: 13px 26px;
@@ -972,7 +971,7 @@ input {
   font-size: 15px;
   color: var(--parchment);
   background: none;
-  border: 1px solid var(--brass);
+  border: 1px solid var(--verdigris);
   border-radius: 6px;
   padding: 12px 24px;
 }
@@ -1089,7 +1088,7 @@ input {
 }
 
 .preset-card-selected {
-  border-color: var(--brass);
+  border-color: var(--verdigris);
 }
 
 .preset-name {
@@ -1152,8 +1151,8 @@ input {
 }
 
 .vault-switcher-chip-current {
-  border-color: var(--brass);
-  color: var(--brass);
+  border-color: var(--verdigris);
+  color: var(--verdigris);
   cursor: default;
 }
 
@@ -1178,4 +1177,44 @@ input {
   font-size: 14px;
   color: var(--parchment);
   word-break: break-all;
+}
+
+/* ---------- how it works ---------- */
+
+.how-it-works {
+  margin-top: 28px;
+}
+
+.how-it-works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.how-it-works-card {
+  background: var(--deck);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.how-it-works-step {
+  font-size: 13px;
+  color: var(--verdigris);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.how-it-works-title {
+  font-family: var(--display);
+  font-size: 19px;
+  color: var(--parchment);
+  margin: 0 0 8px;
+}
+
+.how-it-works-body {
+  font-size: 14px;
+  color: var(--fog);
+  line-height: 1.55;
+  margin: 0;
 }

@@ -10,7 +10,7 @@ export default function HelmWheel({ size = 48, locked = false, drift = false, co
   const r = size * 0.4;
   const cx = size / 2;
   const cy = size / 2;
-  const strokeColor = color || (locked ? "var(--refused-bright)" : "var(--brass)");
+  const strokeColor = color || (locked ? "var(--refused-bright)" : "var(--verdigris)");
 
   const spokeLines = [];
   for (let i = 0; i < spokes; i++) {
