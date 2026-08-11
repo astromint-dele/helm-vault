@@ -30,6 +30,22 @@ export async function getVaultsForOwner(ownerAddress, provider) {
   return vaults;
 }
 
+// A real, full page navigation, not next/navigation's client router. That was tried first
+// for the create-vault view-your-vault link and diagnosed as unreliable on this Next.js
+// version specifically for a searchParams-only change behind this page's Suspense
+// boundary: the RSC fetch genuinely fired (confirmed via a real browser's network log) and
+// the server genuinely returned the right vault's data (confirmed by inspecting the raw
+// RSC payload directly), but the client never applied it, the address bar and rendered
+// content both stayed on the old vault. A full navigation is the one path independently
+// verified, repeatedly, end to end, in a real browser, not just curl. Every place in this
+// app that switches which vault is being viewed goes through this one function, not a
+// second copy of the same logic. useWallet's silent eth_accounts restore on mount is what
+// keeps this from costing a manual reconnect click.
+export function goToVault(address) {
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  window.location.href = `?vault=${address}`;
+}
+
 // Mirrors VaultFactory.sol's Preset enum exactly, order matters.
 export const PRESETS = [
   { id: 0, name: "Conservative", allocations: { USDG: 60, NVDAx: 15, SPYx: 15, xBTC: 10 } },

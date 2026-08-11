@@ -103,24 +103,6 @@ export default function HomeClient({ initialState, initialError }) {
     );
   }
 
-  // A vault with nothing spendable to act on, most commonly a freshly created vault
-  // that's never been funded, is a real, common, non-error state, not a broken page. It
-  // gets the same full-content-area treatment as nav_blocked and navDemoUnavailable above,
-  // rather than a small message buried inside the normal proposal panel, since "how do I
-  // fund this and what happens next" is the single most important thing to say here.
-  if (proposal.action === "insufficient_funds") {
-    return (
-      <EmptyVaultPanel
-        vaultAddress={state.vaultAddress}
-        ownerAddress={state.ownerAddress}
-        holdings={proposal.drift.holdings}
-        wallet={wallet}
-        onRefresh={load}
-        refreshing={refreshing}
-      />
-    );
-  }
-
   return (
     <>
       <StandingWatchPanel
@@ -130,18 +112,34 @@ export default function HomeClient({ initialState, initialError }) {
         refreshing={refreshing}
       />
 
-      {/* Keyed on generatedAt so a fresh successful load fully remounts this panel,
-          clearing any stale approved/declined/error state from the previous proposal —
-          without this, a completed approval's confirmation banner never went away on its
-          own, and looked like Refresh wasn't doing anything beyond the block number. */}
-      <ProposalPanel
-        key={state.generatedAt}
-        proposal={proposal}
-        vaultAddress={state.vaultAddress}
-        ownerAddress={state.ownerAddress}
-        wallet={wallet}
-        onExecuted={load}
-      />
+      {/* A vault with nothing spendable to act on, most commonly a freshly created vault
+          that's never been funded, only replaces this one slot, not the whole page.
+          StandingWatchPanel, holdings, price fairness (including the public "check any
+          xStock" tool, which has no dependency on this vault's own balance at all), and
+          the instruct box all stay visible and honest below, whether this vault is funded
+          or not. Keyed on generatedAt so a fresh successful load fully remounts whichever
+          of these renders, clearing any stale approved/declined/error state from the
+          previous proposal. */}
+      {proposal.action === "insufficient_funds" ? (
+        <EmptyVaultPanel
+          key={state.generatedAt}
+          vaultAddress={state.vaultAddress}
+          ownerAddress={state.ownerAddress}
+          holdings={proposal.drift.holdings}
+          wallet={wallet}
+          onRefresh={load}
+          refreshing={refreshing}
+        />
+      ) : (
+        <ProposalPanel
+          key={state.generatedAt}
+          proposal={proposal}
+          vaultAddress={state.vaultAddress}
+          ownerAddress={state.ownerAddress}
+          wallet={wallet}
+          onExecuted={load}
+        />
+      )}
 
       <div className="main-grid">
         <div className="col">

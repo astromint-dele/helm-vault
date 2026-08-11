@@ -3,6 +3,7 @@ import PanelsSkeleton from "./components/PanelsSkeleton.jsx";
 import WalletButton from "./components/WalletButton.jsx";
 import WalletError from "./components/WalletError.jsx";
 import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
+import VaultSwitcher from "./components/VaultSwitcher.jsx";
 import VaultDataServer from "./VaultDataServer.jsx";
 import { WalletProvider } from "./WalletProvider.jsx";
 import { resolveVaultAddress } from "./server/vaultState.js";
@@ -59,6 +60,8 @@ export default async function Page({ searchParams }) {
             vault&apos;s owner signing first.
           </p>
         </div>
+
+        <VaultSwitcher currentVaultAddress={vaultAddress} />
 
         <CreateVaultPanel />
 

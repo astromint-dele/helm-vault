@@ -20,7 +20,7 @@ export default function EmptyVaultPanel({ vaultAddress, ownerAddress, holdings, 
     });
   }
 
-  const allowlistSymbols = (holdings || []).map((h) => h.symbol);
+  const xstockSymbols = (holdings || []).map((h) => h.symbol).filter((s) => s !== "USDG");
 
   return (
     <div className="panel">
@@ -55,10 +55,22 @@ export default function EmptyVaultPanel({ vaultAddress, ownerAddress, holdings, 
       </div>
 
       <p className="disclosure-line" style={{ marginTop: 16 }}>
-        Send USDG{allowlistSymbols.length > 0 ? ` or any of ${allowlistSymbols.filter((s) => s !== "USDG").join(", ")}` : ""}{" "}
-        to this address, directly from your own wallet. Any amount works, there is no minimum to make a
-        deposit, though very small deposits may not produce a trade worth the gas to execute (see the
-        vault&apos;s policy for its trade-size floor).
+        <strong>Deposit USDG</strong> to this address, directly from your own wallet. Helm reads the deposit,
+        then proposes trades to buy {xstockSymbols.length > 0 ? xstockSymbols.join(", ") : "the vault's other holdings"} according
+        to this vault&apos;s target allocation below. There is no minimum deposit, though a very small one may
+        not produce a trade worth the gas to execute.
+      </p>
+
+      <p className="disclosure-line">
+        You can also send {xstockSymbols.length > 0 ? xstockSymbols.join(", ") : "another allowlisted token"} directly,
+        this vault accepts any of its allowlisted tokens, but that is not the intended path. The agent would
+        then need to sell that position back down to reach target rather than simply buying up from cash, an
+        extra trade for no real benefit.
+      </p>
+
+      <p className="disclosure-line">
+        Sending a token that is not on this vault&apos;s allowlist is safe but inert. The owner can always
+        withdraw it, the agent can never trade it.
       </p>
 
       <p className="disclosure-line">

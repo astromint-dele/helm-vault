@@ -1110,23 +1110,51 @@ input {
   gap: 4px;
 }
 
-.link-button {
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--brass);
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.owned-vault-list {
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0;
+.vault-switcher {
+  margin-top: 20px;
+  padding: 14px 20px;
+  background: var(--deck);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.vault-switcher-current {
+  font-size: 13px;
+  color: var(--parchment);
+  margin: 0;
+}
+
+.vault-switcher-note {
+  font-size: 13px;
+  color: var(--fog);
+}
+
+.vault-switcher-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vault-switcher-chip {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--parchment);
+  background: var(--deck-raised);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.vault-switcher-chip-current {
+  border-color: var(--brass);
+  color: var(--brass);
+  cursor: default;
 }
 
 .vault-address-box {
