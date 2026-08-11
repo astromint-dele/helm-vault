@@ -9,6 +9,7 @@ import ProposalPanel from "./components/ProposalPanel.jsx";
 import InstructBox from "./components/InstructBox.jsx";
 import RefusedPanel from "./components/RefusedPanel.jsx";
 import DemoUnavailablePanel from "./components/DemoUnavailablePanel.jsx";
+import EmptyVaultPanel from "./components/EmptyVaultPanel.jsx";
 
 const FETCH_TIMEOUT_MS = 20_000; // the slowest real cold request observed was ~18s (a fresh
 // LLM call plus OKX retries with no warm cache at all); this sits above that with margin
@@ -98,6 +99,24 @@ export default function HomeClient({ initialState, initialError }) {
         vaultAddress={state.vaultAddress}
         onAcknowledge={load}
         acknowledging={refreshing}
+      />
+    );
+  }
+
+  // A vault with nothing spendable to act on, most commonly a freshly created vault
+  // that's never been funded, is a real, common, non-error state, not a broken page. It
+  // gets the same full-content-area treatment as nav_blocked and navDemoUnavailable above,
+  // rather than a small message buried inside the normal proposal panel, since "how do I
+  // fund this and what happens next" is the single most important thing to say here.
+  if (proposal.action === "insufficient_funds") {
+    return (
+      <EmptyVaultPanel
+        vaultAddress={state.vaultAddress}
+        ownerAddress={state.ownerAddress}
+        holdings={proposal.drift.holdings}
+        wallet={wallet}
+        onRefresh={load}
+        refreshing={refreshing}
       />
     );
   }

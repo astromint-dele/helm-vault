@@ -9,7 +9,25 @@ export const VAULT_FACTORY_ADDRESS = process.env.NEXT_PUBLIC_VAULT_FACTORY_ADDRE
 export const VAULT_FACTORY_ABI = [
   "function createVault(uint8 preset) external returns (address)",
   "event VaultCreated(address indexed owner, address indexed vault, uint8 preset)",
+  "function vaultsByOwnerCount(address ownerAddress) view returns (uint256)",
+  "function vaultsByOwner(address ownerAddress, uint256 index) view returns (address)",
 ];
+
+// Reconstructs an owner's vaults straight from the factory's own onchain registry, not
+// from any client-side storage, so "find my vault again" works from any device or browser
+// just by connecting the same wallet, closing the tab loses nothing. Read-only, no signer
+// or wallet prompt needed, callers pass any ethers Provider (a JsonRpcProvider works fine,
+// this never needs the connected wallet's own provider specifically).
+export async function getVaultsForOwner(ownerAddress, provider) {
+  const { Contract } = await import("ethers");
+  const factory = new Contract(VAULT_FACTORY_ADDRESS, VAULT_FACTORY_ABI, provider);
+  const count = Number(await factory.vaultsByOwnerCount(ownerAddress));
+  const vaults = [];
+  for (let i = 0; i < count; i++) {
+    vaults.push(await factory.vaultsByOwner(ownerAddress, i));
+  }
+  return vaults;
+}
 
 // Mirrors VaultFactory.sol's Preset enum exactly, order matters.
 export const PRESETS = [

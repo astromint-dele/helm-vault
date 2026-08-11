@@ -11,7 +11,6 @@ const EXPLANATION_SOURCE_LABEL = {
 const STATUS_LABEL = {
   rebalance: "Awaiting your decision",
   none: "No action needed",
-  insufficient_funds: "Insufficient funds",
   no_underweight_asset: "No trade target yet",
 };
 
@@ -71,21 +70,9 @@ export default function ProposalPanel({ proposal, vaultAddress, ownerAddress, wa
     );
   }
 
-  if (proposal.action === "insufficient_funds") {
-    return (
-      <div className="panel">
-        <div className="panel-header-row">
-          <p className="panel-title">Current proposal, written by Helm</p>
-          <p className="panel-title">{STATUS_LABEL.insufficient_funds}</p>
-        </div>
-        <div className="empty-state">
-          <strong>The vault needs a deposit.</strong>
-          Holdings have drifted from target, but nothing overweight has a spendable balance to sell. Send
-          funds to the vault to let the agent rebalance.
-        </div>
-      </div>
-    );
-  }
+  // insufficient_funds is handled one level up (see HomeClient.jsx), same as nav_blocked,
+  // it takes over the whole content area with real deposit instructions rather than a
+  // small message inside this panel.
 
   // Distinct from insufficient_funds: an asset is overweight enough to sell, but nothing
   // else is underweight enough yet to be worth trading into. Not a funds problem, so it
