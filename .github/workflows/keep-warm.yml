@@ -1,0 +1,16 @@
+name: Keep Helm warm
+
+# Vercel Hobby tier's own cron is limited to once-daily, which is useless for keeping a
+# serverless function warm. This pings the live page every 5 minutes instead, so a cold
+# Lambda container is never what a judge (or anyone else) hits first.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping live site
+        run: curl -s -o /dev/null -w "HTTP %{http_code} in %{time_total}s\n" https://helmfi-agent.vercel.app/

@@ -6,6 +6,7 @@
 // fail-closed guarantee actually depends on.
 import { loadRootEnv } from "./env.js";
 import { OWNER_ADDRESS } from "./owner.js";
+import { createTimer } from "../../../lib/timing.js";
 
 loadRootEnv();
 
@@ -44,10 +45,16 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
   const cacheKey = `${vaultAddress}:${demoBlockThreshold || ""}:${demoWarnThreshold || ""}`;
   const isDemoRequest = Boolean(navThresholdOverride);
 
+  // One shared timer across both parallel branches, so the report below reflects the whole
+  // request, not just generateRebalanceProposal's half of it - getVaultMeta's RPC calls
+  // happen concurrently with drift/NAV/LLM, and a timer only shows that overlap correctly
+  // if both branches record into the same one.
+  const timer = createTimer();
+
   try {
     const [proposal, meta] = await Promise.all([
-      generateRebalanceProposal(vaultAddress, { navThresholdOverride }),
-      getVaultMeta(vaultAddress),
+      generateRebalanceProposal(vaultAddress, { navThresholdOverride, timer }),
+      getVaultMeta(vaultAddress, { timer }),
     ]);
 
     // generateRebalanceProposal can itself fall back to templated explanation text (its own
@@ -81,6 +88,14 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
       (n) => n.status !== "na" && typeof n.blockThresholdPct === "number"
     );
     const navBlockThresholdPct = checkedNav?.blockThresholdPct ?? navThresholdOverride?.blockThresholdPct ?? DEFAULT_BLOCK_THRESHOLD_PCT;
+
+    // Logged plainly (not just returned in the JSON) so it shows up directly in Vercel's
+    // function logs on a real cold hit, without needing to parse the response body by hand.
+    const timing = timer.report();
+    console.log(
+      `[timing] totalMs=${timing.totalMs} ` +
+        timing.events.map((e) => `${e.label}=${e.durationMs}ms@${e.startMs}ms`).join(" ")
+    );
 
     const body = toPlainJson({
       ok: true,
