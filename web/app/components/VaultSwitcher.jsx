@@ -26,7 +26,7 @@ export default function VaultSwitcher({ currentVaultAddress }) {
   const [ownedVaults, setOwnedVaults] = useState(null); // null = not checked yet, [] = checked, none found
 
   useEffect(() => {
-    if (!wallet.address) return;
+    if (!wallet.address) return; // stale data from a prior connection is harmless, every render below is gated on wallet.address too, and a reconnect always re-triggers a fresh lookup via the dependency array
     let cancelled = false;
     getVaultsForOwner(wallet.address, READ_PROVIDER)
       .then((vaults) => {
@@ -50,7 +50,7 @@ export default function VaultSwitcher({ currentVaultAddress }) {
 
       {lookingUp && <p className="vault-switcher-note">Checking the factory for vaults this wallet owns...</p>}
 
-      {!lookingUp && ownedVaults && ownedVaults.length > 0 && (
+      {wallet.address && !lookingUp && ownedVaults && ownedVaults.length > 0 && (
         <div className="vault-switcher-list">
           <span className="vault-switcher-note">
             {ownedVaults.length === 1 ? "This wallet owns 1 vault" : `This wallet owns ${ownedVaults.length} vaults`}:
