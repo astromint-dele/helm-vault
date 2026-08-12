@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 2400" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4fae7a" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0453a" />
+    </marker>
+  </defs>
+
+  <!-- page -->
+  <rect x="0" y="0" width="1440" height="2400" fill="#0e1420" />
+
+  <!-- zone bands: off chain (owner + agent) vs on chain (contract) -->
+  <rect x="20" y="100" width="940" height="2260" fill="#141b28" />
+  <rect x="960" y="100" width="460" height="2260" fill="#4fae7a" fill-opacity="0.05" />
+
+  <!-- title -->
+  <text x="720" y="52" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="34" fill="#ece6d8">Helm</text>
+  <text x="720" y="80" text-anchor="middle" font-size="15" fill="#a3acc0">How a proposed trade becomes an executed one, and everywhere it can stop</text>
+
+  <!-- lane headers -->
+  <text x="260" y="120" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="20" fill="#4fae7a">Owner</text>
+  <text x="720" y="120" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="20" fill="#4fae7a">Agent</text>
+  <text x="1180" y="120" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="20" fill="#4fae7a">Contract</text>
+
+  <text x="490" y="152" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="12" letter-spacing="2" fill="#7d869c">OFF CHAIN, COMPUTED AND SIGNED, NOT ENFORCED BY CODE</text>
+  <text x="1190" y="152" text-anchor="middle" font-family="'SFMono-Regular', Menlo, Consolas, monospace" font-size="12" letter-spacing="2" fill="#4fae7a">ON CHAIN, ENFORCED BY POLICYVAULT.SOL</text>
+
+  <!-- connecting arrows (drawn first, so boxes sit on top of line ends) -->
+  <!-- owner-1 -> contract-1 -->
+  <path d="M460,215 C 560,215 880,215 978,225" fill="none" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- contract-1 -> agent-2 -->
+  <path d="M980,300 C 800,330 700,330 720,348" fill="none" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- agent-2 -> agent-3 -->
+  <line x1="720" y1="470" x2="720" y2="518" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- agent-3 -> agent-4 -->
+  <line x1="720" y1="640" x2="720" y2="688" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- agent-4 -> agent-5 -->
+  <line x1="720" y1="810" x2="720" y2="858" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- agent-5 -> gate-1 -->
+  <line x1="720" y1="1020" x2="720" y2="1062" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- gate-1 fair -> owner-2 -->
+  <path d="M720,1280 C 720,1310 460,1310 380,1338" fill="none" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- gate-1 unfair -> refused-1 -->
+  <path d="M830,1170 C 900,1170 940,1170 978,1170" fill="none" stroke="#c0453a" stroke-width="2.5" marker-end="url(#arrowRed)" />
+  <!-- owner-2 -> agent-6 -->
+  <path d="M460,1400 C 560,1400 640,1450 700,1508" fill="none" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- agent-6 -> gate-2 -->
+  <path d="M920,1590 C 1050,1620 1140,1680 1180,1728" fill="none" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+  <!-- gate-2 unfair -> refused-2 -->
+  <path d="M1070,1840 C 1000,1840 960,1840 920,1840" fill="none" stroke="#c0453a" stroke-width="2.5" marker-end="url(#arrowRed)" />
+  <!-- gate-2 pass -> contract-final -->
+  <line x1="1180" y1="1950" x2="1180" y2="2008" stroke="#4fae7a" stroke-width="2" marker-end="url(#arrowGreen)" />
+
+  <!-- OWNER-1 -->
+  <g>
+    <rect x="60" y="170" width="400" height="100" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="80" y="198" font-size="13" letter-spacing="1" fill="#a3acc0">SETS POLICY</text>
+    <text x="80" y="224" font-size="15" fill="#ece6d8">Owner configures the</text>
+    <text x="80" y="246" font-size="15" fill="#ece6d8">vault's allowlist, targets,</text>
+    <text x="80" y="268" font-size="15" fill="#ece6d8">and caps.</text>
+  </g>
+
+  <!-- CONTRACT-1 -->
+  <g>
+    <rect x="980" y="170" width="400" height="120" fill="#1e2838" stroke="#4fae7a" stroke-width="2" />
+    <text x="1000" y="198" font-size="13" letter-spacing="1" fill="#4fae7a" font-family="'SFMono-Regular', Menlo, Consolas, monospace">setPolicy()</text>
+    <text x="1000" y="224" font-size="15" fill="#ece6d8">Allowlist, target bps, and</text>
+    <text x="1000" y="246" font-size="15" fill="#ece6d8">caps stored onchain.</text>
+    <text x="1000" y="268" font-size="15" fill="#ece6d8">onlyOwner enforced.</text>
+  </g>
+
+  <!-- AGENT-2 -->
+  <g>
+    <rect x="520" y="350" width="400" height="120" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="540" y="378" font-size="13" letter-spacing="1" fill="#a3acc0">1. READS VAULT STATE</text>
+    <text x="540" y="404" font-size="15" fill="#ece6d8">Balances and policy, cross</text>
+    <text x="540" y="426" font-size="15" fill="#ece6d8">checked over 2 independent</text>
+    <text x="540" y="448" font-size="15" fill="#ece6d8">RPC endpoints first.</text>
+  </g>
+
+  <!-- AGENT-3 -->
+  <g>
+    <rect x="520" y="520" width="400" height="120" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="540" y="548" font-size="13" letter-spacing="1" fill="#a3acc0">2. COMPUTES DRIFT</text>
+    <text x="540" y="574" font-size="15" fill="#ece6d8">decideRebalanceAction.</text>
+    <text x="540" y="596" font-size="15" fill="#ece6d8">Deterministic, unit tested.</text>
+    <text x="540" y="618" font-size="15" fill="#ece6d8">Runs with or without the LLM.</text>
+  </g>
+
+  <!-- AGENT-4 -->
+  <g>
+    <rect x="520" y="690" width="400" height="120" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="540" y="718" font-size="13" letter-spacing="1" fill="#a3acc0">3. SIZES THE TRADE</text>
+    <text x="540" y="744" font-size="15" fill="#ece6d8">Deterministic. The agent</text>
+    <text x="540" y="766" font-size="15" fill="#ece6d8">decides the trade. The LLM</text>
+    <text x="540" y="788" font-size="15" fill="#ece6d8">never does.</text>
+  </g>
+
+  <!-- AGENT-5 -->
+  <g>
+    <rect x="520" y="860" width="400" height="160" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="540" y="888" font-size="13" letter-spacing="1" fill="#a3acc0">4. LLM PHRASES IT</text>
+    <text x="540" y="914" font-size="15" fill="#ece6d8">gemini-3.1-flash-lite writes</text>
+    <text x="540" y="936" font-size="15" fill="#ece6d8">prose only. It cannot change</text>
+    <text x="540" y="958" font-size="15" fill="#ece6d8">what is being proposed.</text>
+    <text x="540" y="984" font-size="14" fill="#7d869c">Deterministic templated</text>
+    <text x="540" y="1004" font-size="14" fill="#7d869c">fallback if unavailable.</text>
+  </g>
+
+  <!-- GATE 1 -->
+  <g>
+    <polygon points="720,1062 830,1170 720,1278 610,1170" fill="#1e2838" stroke="#c0453a" stroke-width="3" />
+    <text x="720" y="1148" text-anchor="middle" font-size="13" letter-spacing="1" fill="#e0574a">NAV SENTINEL</text>
+    <text x="720" y="1172" text-anchor="middle" font-size="13" fill="#ece6d8">price fairness</text>
+    <text x="720" y="1194" text-anchor="middle" font-size="13" fill="#ece6d8">gate</text>
+  </g>
+  <text x="740" y="1305" font-size="13" fill="#4fae7a">fair, continues</text>
+  <text x="900" y="1155" font-size="13" fill="#e0574a">not fair</text>
+
+  <!-- REFUSED-1 -->
+  <g>
+    <rect x="980" y="1120" width="400" height="100" fill="#2a1414" stroke="#c0453a" stroke-width="2" />
+    <text x="1000" y="1148" font-size="13" letter-spacing="1" fill="#e0574a">TRADE REFUSED</text>
+    <text x="1000" y="1174" font-size="15" fill="#ece6d8">Never shown to the owner.</text>
+    <text x="1000" y="1196" font-size="15" fill="#ece6d8">No approve button appears.</text>
+  </g>
+
+  <!-- OWNER-2 -->
+  <g>
+    <rect x="60" y="1340" width="400" height="120" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="80" y="1368" font-size="13" letter-spacing="1" fill="#a3acc0">5. REVIEWS AND SIGNS</text>
+    <text x="80" y="1394" font-size="15" fill="#ece6d8">A fresh signed message.</text>
+    <text x="80" y="1416" font-size="15" fill="#ece6d8">Real wallet signature, real</text>
+    <text x="80" y="1438" font-size="15" fill="#ece6d8">irreversible intent.</text>
+  </g>
+
+  <!-- AGENT-6 -->
+  <g>
+    <rect x="520" y="1510" width="400" height="160" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="540" y="1538" font-size="13" letter-spacing="1" fill="#a3acc0">6. SIGNATURE VERIFIED</text>
+    <text x="540" y="1564" font-size="15" fill="#ece6d8">Checked against a fresh</text>
+    <text x="540" y="1586" font-size="15" fill="#ece6d8">owner() read. The trade is</text>
+    <text x="540" y="1608" font-size="15" fill="#ece6d8">re-derived fresh onchain too,</text>
+    <text x="540" y="1630" font-size="15" fill="#ece6d8">not trusted from whatever</text>
+    <text x="540" y="1652" font-size="15" fill="#ece6d8">the browser last displayed.</text>
+  </g>
+
+  <!-- GATE 2 -->
+  <g>
+    <polygon points="1180,1728 1290,1840 1180,1952 1070,1840" fill="#1e2838" stroke="#c0453a" stroke-width="3" />
+    <text x="1180" y="1818" text-anchor="middle" font-size="13" letter-spacing="1" fill="#e0574a">CONTRACT CHECKS</text>
+    <text x="1180" y="1842" text-anchor="middle" font-size="13" fill="#ece6d8">allowlist, caps,</text>
+    <text x="1180" y="1864" text-anchor="middle" font-size="13" fill="#ece6d8">100% allocation</text>
+  </g>
+  <text x="1200" y="1985" font-size="13" fill="#4fae7a">passes, continues</text>
+  <text x="960" y="1825" text-anchor="end" font-size="13" fill="#e0574a">any check fails</text>
+
+  <!-- REFUSED-2 -->
+  <g>
+    <rect x="520" y="1790" width="400" height="100" fill="#2a1414" stroke="#c0453a" stroke-width="2" />
+    <text x="540" y="1818" font-size="13" letter-spacing="1" fill="#e0574a">TRADE REVERTS</text>
+    <text x="540" y="1844" font-size="15" fill="#ece6d8">executeTrade requires every</text>
+    <text x="540" y="1866" font-size="15" fill="#ece6d8">check to pass. One failure</text>
+    <text x="540" y="1888" font-size="15" fill="#ece6d8">reverts the whole transaction.</text>
+  </g>
+
+  <!-- CONTRACT-FINAL -->
+  <g>
+    <rect x="980" y="2010" width="400" height="160" fill="#1e2838" stroke="#00c88a" stroke-width="2.5" />
+    <text x="1000" y="2038" font-size="13" letter-spacing="1" fill="#00c88a" font-family="'SFMono-Regular', Menlo, Consolas, monospace">executeTrade() succeeds</text>
+    <text x="1000" y="2064" font-size="15" fill="#ece6d8">Swap executes. OKX's DEX</text>
+    <text x="1000" y="2086" font-size="15" fill="#ece6d8">Aggregator routes through</text>
+    <text x="1000" y="2108" font-size="15" fill="#ece6d8">Uniswap V4 liquidity.</text>
+    <text x="1000" y="2134" font-size="14" fill="#a3acc0">Output measured by balance</text>
+    <text x="1000" y="2154" font-size="14" fill="#a3acc0">diff, not trusted from calldata.</text>
+  </g>
+
+  <!-- legend -->
+  <g font-size="14" fill="#a3acc0">
+    <rect x="60" y="2230" width="34" height="20" fill="#1e2838" stroke="#4fae7a" stroke-width="2" />
+    <text x="106" y="2245">Enforced onchain, inside PolicyVault.sol</text>
+
+    <rect x="60" y="2265" width="34" height="20" fill="#171f2d" stroke="#7d869c" stroke-width="1.5" stroke-dasharray="6,4" />
+    <text x="106" y="2280">Computed off chain, by the agent, not enforced by code</text>
+
+    <polygon points="77,2298 94,2315 77,2332 60,2315" fill="#1e2838" stroke="#c0453a" stroke-width="2.5" />
+    <text x="106" y="2320">Independent gate. Either one alone stops the trade, neither depends on the other</text>
+  </g>
+</svg>
