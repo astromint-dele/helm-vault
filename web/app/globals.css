@@ -241,6 +241,7 @@ input {
 
 .identity-block {
   padding: 32px 0 0;
+  text-align: center;
 }
 
 .identity-name {
@@ -265,7 +266,7 @@ input {
   color: var(--fog);
   line-height: 1.6;
   max-width: 640px;
-  margin: 12px 0 0;
+  margin: 12px auto 0;
 }
 
 /* ---------- disclosure box ---------- */
