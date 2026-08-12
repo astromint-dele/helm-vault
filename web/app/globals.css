@@ -487,6 +487,52 @@ input {
   transform: translateX(-1px);
 }
 
+.holding-withdraw {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.holding-withdraw-btn {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--fog);
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 5px 10px;
+}
+
+.holding-withdraw-btn:hover:not(:disabled) {
+  color: var(--parchment);
+  border-color: var(--verdigris);
+}
+
+.holding-withdraw-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.holding-withdraw-cancel {
+  font-family: var(--data);
+  font-size: 12px;
+  color: var(--fog-dim);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+
+.holding-withdraw-error {
+  width: 100%;
+  font-size: 12px;
+  color: var(--refused-bright);
+  margin: 0;
+}
+
 .holding-drift-col {
   text-align: right;
 }

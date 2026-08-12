@@ -168,5 +168,57 @@ export function useWallet() {
     [address]
   );
 
-  return { address, chainOk, connecting, error, connect, disconnect, signApproval, createVault, creatingVault };
+  // Direct owner call, no agent involved, on a function PolicyVault.sol has had since
+  // Phase 1 (withdraw(token, amount, to), onlyOwner) and never exposed in the frontend
+  // until now. amountRaw is a bigint, the vault's real balanceRaw for that token, not
+  // re-derived from the human-readable display value, so "withdraw all" moves the exact
+  // amount actually held, not a rounded approximation of it.
+  const [withdrawing, setWithdrawing] = useState(false);
+  const withdraw = useCallback(
+    async (vaultAddress, tokenAddress, amountRaw) => {
+      if (!address || typeof window === "undefined" || !window.ethereum) {
+        throw new Error("Wallet not connected.");
+      }
+      setWithdrawing(true);
+      try {
+        const provider = new BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const vault = new Contract(
+          vaultAddress,
+          ["function withdraw(address token, uint256 amount, address to) external"],
+          signer
+        );
+        const tx = await vault.withdraw(tokenAddress, amountRaw, address);
+        const receipt = await tx.wait();
+        return { txHash: tx.hash, blockNumber: receipt.blockNumber };
+      } catch (err) {
+        const isUserRejection = err.code === "ACTION_REJECTED" || err.code === 4001 || err.info?.error?.code === 4001;
+        if (isUserRejection) {
+          throw new Error("You declined the transaction. Nothing was withdrawn.");
+        }
+        const isInsufficientFunds = err.code === "INSUFFICIENT_FUNDS" || err.info?.error?.code === -32000;
+        if (isInsufficientFunds) {
+          throw new Error("Not enough OKB in your wallet to cover gas for this transaction.");
+        }
+        throw new Error(err.shortMessage || err.reason || "Could not withdraw. Nothing was moved.");
+      } finally {
+        setWithdrawing(false);
+      }
+    },
+    [address]
+  );
+
+  return {
+    address,
+    chainOk,
+    connecting,
+    error,
+    connect,
+    disconnect,
+    signApproval,
+    createVault,
+    creatingVault,
+    withdraw,
+    withdrawing,
+  };
 }

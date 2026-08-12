@@ -147,6 +147,10 @@ export default function HomeClient({ initialState, initialError }) {
             holdings={proposal.drift.holdings}
             driftThresholdPct={proposal.driftThresholdPct}
             totalValueUSDG={proposal.drift.totalValueUSDG}
+            vaultAddress={state.vaultAddress}
+            ownerAddress={state.ownerAddress}
+            wallet={wallet}
+            onWithdrawn={load}
           />
         </div>
         <div className="col">
