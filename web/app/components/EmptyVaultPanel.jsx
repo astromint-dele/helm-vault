@@ -8,7 +8,15 @@ import { useState } from "react";
 // separate "onboarding" screen that gets dismissed, it's the same real proposal state
 // every other panel renders from, it just disappears on its own the moment a refresh sees
 // a nonzero balance, because at that point the agent has a real trade to propose instead.
-export default function EmptyVaultPanel({ vaultAddress, ownerAddress, holdings, wallet, onRefresh, refreshing }) {
+export default function EmptyVaultPanel({
+  vaultAddress,
+  ownerAddress,
+  holdings,
+  wallet,
+  onRefresh,
+  refreshing,
+  depositCheck,
+}) {
   const [copied, setCopied] = useState(false);
 
   const isOwner = wallet.address && ownerAddress && wallet.address.toLowerCase() === ownerAddress.toLowerCase();
@@ -97,6 +105,18 @@ export default function EmptyVaultPanel({ vaultAddress, ownerAddress, holdings, 
       <button className="refresh-btn mono" style={{ marginTop: 18 }} onClick={onRefresh} disabled={refreshing}>
         {refreshing ? "Checking" : "Check for deposit"}
       </button>
+
+      {/* depositCheck is only set right after this button's own click resolves, not by any
+          other refresh trigger on the page, so this never reports on a check that didn't
+          actually just happen. found is always false here in practice, since a true result
+          means proposal.action moved off insufficient_funds and this component no longer
+          renders at all, but the check is kept honest rather than assumed. */}
+      {depositCheck && !depositCheck.found && (
+        <p className="disclosure-line deposit-check-status">
+          No deposit confirmed yet, checked at {new Date(depositCheck.checkedAt).toLocaleTimeString()}. If you
+          just sent funds, give it a few minutes for the transaction to confirm, then check again.
+        </p>
+      )}
     </div>
   );
 }

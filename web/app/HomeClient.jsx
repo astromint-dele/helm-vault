@@ -6,7 +6,6 @@ import StandingWatchPanel from "./components/StandingWatchPanel.jsx";
 import HoldingsBars from "./components/HoldingsBars.jsx";
 import PriceFairnessTable from "./components/PriceFairnessTable.jsx";
 import ProposalPanel from "./components/ProposalPanel.jsx";
-import InstructBox from "./components/InstructBox.jsx";
 import RefusedPanel from "./components/RefusedPanel.jsx";
 import DemoUnavailablePanel from "./components/DemoUnavailablePanel.jsx";
 import EmptyVaultPanel from "./components/EmptyVaultPanel.jsx";
@@ -23,12 +22,18 @@ export default function HomeClient({ initialState, initialError }) {
   const [state, setState] = useState(initialState);
   const [loadError, setLoadError] = useState(initialError || null);
   const [refreshing, setRefreshing] = useState(false);
+  // Set only by an explicit "Check for deposit" click (opts.isDepositCheck below), not by
+  // any of the other things that call load() (standing watch refresh, withdraw, execute,
+  // acknowledge). Cleared at the start of every load() so it never lingers to describe a
+  // refresh it wasn't actually the result of.
+  const [depositCheck, setDepositCheck] = useState(null);
 
   // No auto-poll: a passive viewer costs zero OKX calls, and every open tab was previously
   // multiplying quote requests by re-fetching every 30s whether or not anyone was looking.
   // The server-rendered initial load plus this manual refresh are the only triggers now.
-  const load = useCallback(async () => {
+  const load = useCallback(async (opts = {}) => {
     setRefreshing(true);
+    setDepositCheck(null);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
@@ -38,6 +43,12 @@ export default function HomeClient({ initialState, initialError }) {
       if (!data.ok) throw new Error(data.error || "Could not load vault state.");
       setState(data);
       setLoadError(null);
+      if (opts.isDepositCheck) {
+        setDepositCheck({
+          found: data.proposal.action !== "insufficient_funds",
+          checkedAt: Date.now(),
+        });
+      }
     } catch (err) {
       if (err.name === "AbortError") {
         setLoadError(
@@ -114,12 +125,11 @@ export default function HomeClient({ initialState, initialError }) {
 
       {/* A vault with nothing spendable to act on, most commonly a freshly created vault
           that's never been funded, only replaces this one slot, not the whole page.
-          StandingWatchPanel, holdings, price fairness (including the public "check any
-          xStock" tool, which has no dependency on this vault's own balance at all), and
-          the instruct box all stay visible and honest below, whether this vault is funded
-          or not. Keyed on generatedAt so a fresh successful load fully remounts whichever
-          of these renders, clearing any stale approved/declined/error state from the
-          previous proposal. */}
+          StandingWatchPanel, holdings, and price fairness (including the public "check any
+          xStock" tool, which has no dependency on this vault's own balance at all) all stay
+          visible and honest below, whether this vault is funded or not. Keyed on
+          generatedAt so a fresh successful load fully remounts whichever of these renders,
+          clearing any stale approved/declined/error state from the previous proposal. */}
       {proposal.action === "insufficient_funds" ? (
         <EmptyVaultPanel
           key={state.generatedAt}
@@ -127,18 +137,26 @@ export default function HomeClient({ initialState, initialError }) {
           ownerAddress={state.ownerAddress}
           holdings={proposal.drift.holdings}
           wallet={wallet}
-          onRefresh={load}
+          onRefresh={() => load({ isDepositCheck: true })}
           refreshing={refreshing}
+          depositCheck={depositCheck}
         />
       ) : (
-        <ProposalPanel
-          key={state.generatedAt}
-          proposal={proposal}
-          vaultAddress={state.vaultAddress}
-          ownerAddress={state.ownerAddress}
-          wallet={wallet}
-          onExecuted={load}
-        />
+        <>
+          {depositCheck?.found && (
+            <div className="confirm-banner">
+              <p className="confirm-text">Deposit confirmed. Helm has read the vault&apos;s new balance below.</p>
+            </div>
+          )}
+          <ProposalPanel
+            key={state.generatedAt}
+            proposal={proposal}
+            vaultAddress={state.vaultAddress}
+            ownerAddress={state.ownerAddress}
+            wallet={wallet}
+            onExecuted={load}
+          />
+        </>
       )}
 
       <div className="main-grid">
@@ -161,8 +179,6 @@ export default function HomeClient({ initialState, initialError }) {
           />
         </div>
       </div>
-
-      <InstructBox />
     </>
   );
 }

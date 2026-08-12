@@ -8,6 +8,7 @@ import CreateVaultPanel from "./components/CreateVaultPanel.jsx";
 import VaultSwitcher from "./components/VaultSwitcher.jsx";
 import PublicPriceCheck from "./components/PublicPriceCheck.jsx";
 import ExecutionSavings from "./components/ExecutionSavings.jsx";
+import InstructBox from "./components/InstructBox.jsx";
 import VaultDataServer from "./VaultDataServer.jsx";
 import { WalletProvider } from "./WalletProvider.jsx";
 import { resolveVaultAddress } from "./server/vaultState.js";
@@ -75,6 +76,8 @@ export default async function Page({ searchParams }) {
           <VaultDataServer searchParams={sp} />
         </Suspense>
 
+        <CreateVaultPanel />
+
         <div className="even-grid">
           <ExecutionSavings />
           <div className="panel">
@@ -82,7 +85,7 @@ export default async function Page({ searchParams }) {
           </div>
         </div>
 
-        <CreateVaultPanel />
+        <InstructBox />
 
         <p className="footnote">
           Helm refuses to trade whenever the onchain price drifts too far from the real one.

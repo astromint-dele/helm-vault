@@ -903,6 +903,11 @@ input {
   line-height: 1.5;
 }
 
+.deposit-check-status {
+  color: var(--caution);
+  margin-top: 10px;
+}
+
 .empty-state {
   color: var(--fog);
   font-size: 16px;
