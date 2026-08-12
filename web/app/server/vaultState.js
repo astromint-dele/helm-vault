@@ -5,12 +5,12 @@
 // module and always calls generateRebalanceProposal itself, fresh, which is what the
 // fail-closed guarantee actually depends on.
 import { loadRootEnv } from "./env.js";
-import { OWNER_ADDRESS } from "./owner.js";
+import { isKnownVault, getVaultOwner, LEGACY_VAULT_ADDRESS } from "./vaultRegistry.js";
 import { createTimer } from "../../../lib/timing.js";
 
 loadRootEnv();
 
-const DEFAULT_VAULT_ADDRESS = "0x03ceDFA7dd7E7274882fffE52d6f1a164F563d0b";
+const DEFAULT_VAULT_ADDRESS = LEGACY_VAULT_ADDRESS;
 
 let lastGood = null; // { key, body }
 
@@ -41,7 +41,7 @@ export function toPlainJson(data) {
 export async function getVaultState({ vaultAddress, navThresholdOverride, demoBlockThreshold, demoWarnThreshold }) {
   const { generateRebalanceProposal } = await import("../../../lib/rebalanceProposal.js");
   const { getVaultMeta } = await import("../../../lib/driftCalculator.js");
-  const { DEFAULT_BLOCK_THRESHOLD_PCT, BACKED_XSTOCK_COUNT } = await import("../../../lib/navSentinel.js");
+  const { DEFAULT_BLOCK_THRESHOLD_PCT } = await import("../../../lib/navSentinel.js");
   const cacheKey = `${vaultAddress}:${demoBlockThreshold || ""}:${demoWarnThreshold || ""}`;
   const isDemoRequest = Boolean(navThresholdOverride);
 
@@ -51,10 +51,25 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
   // if both branches record into the same one.
   const timer = createTimer();
 
+  // Best-effort, display-only owner resolution, gated behind the same registry check the
+  // enforcement path uses, so this never shows an owner for an address /api/approve would
+  // actually refuse to trust. Failure here degrades to no displayed owner rather than
+  // failing the whole page, this is read-only UX, not the mechanism keeping funds safe.
+  const ownerAddressPromise = (async () => {
+    try {
+      const known = await isKnownVault(vaultAddress, timer);
+      if (!known) return null;
+      return await getVaultOwner(vaultAddress, timer);
+    } catch {
+      return null;
+    }
+  })();
+
   try {
-    const [proposal, meta] = await Promise.all([
+    const [proposal, meta, ownerAddress] = await Promise.all([
       generateRebalanceProposal(vaultAddress, { navThresholdOverride, timer }),
       getVaultMeta(vaultAddress, { timer }),
+      ownerAddressPromise,
     ]);
 
     // generateRebalanceProposal can itself fall back to templated explanation text (its own
@@ -100,11 +115,10 @@ export async function getVaultState({ vaultAddress, navThresholdOverride, demoBl
     const body = toPlainJson({
       ok: true,
       vaultAddress,
-      ownerAddress: OWNER_ADDRESS,
+      ownerAddress,
       agentAddress: meta.agentAddress,
       currentBlock: meta.blockNumber,
       navBlockThresholdPct,
-      xstockCount: BACKED_XSTOCK_COUNT,
       isDemo: isDemoRequest,
       generatedAt: new Date().toISOString(),
       stale: false,

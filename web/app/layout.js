@@ -32,9 +32,21 @@ export const metadata = {
   description: "AI portfolio desk for tokenized assets on X Layer",
 };
 
+// Runs before first paint, not in a useEffect, since a client-side theme switch after
+// hydration would show a flash of the wrong theme first. Dark is the real default (no
+// attribute at all matches :root, no light-specific rule needed), this only ever adds
+// data-theme="light" when that's what was actually saved, never removes anything.
+const THEME_INIT_SCRIPT = `try {
+  var t = localStorage.getItem("helm-theme");
+  if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+} catch (e) {}`;
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${publicSans.variable} ${plexMono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>{children}</body>
     </html>
   );

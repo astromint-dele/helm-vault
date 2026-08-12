@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { loadRootEnv } from "../../server/env.js";
-import { OWNER_ADDRESS } from "../../server/owner.js";
+import { isKnownVault, getVaultOwner, LEGACY_VAULT_ADDRESS } from "../../server/vaultRegistry.js";
 
 loadRootEnv();
 
@@ -8,7 +8,7 @@ const { generateRebalanceProposal } = await import("../../../../lib/rebalancePro
 const { executeTrade } = await import("../../../../lib/executeTrade.js");
 const { buildTradeConfirmation } = await import("../../../../lib/confirmationText.js");
 
-const DEFAULT_VAULT_ADDRESS = "0x03ceDFA7dd7E7274882fffE52d6f1a164F563d0b";
+const DEFAULT_VAULT_ADDRESS = LEGACY_VAULT_ADDRESS;
 const SIGNATURE_MAX_AGE_MS = 2 * 60 * 1000;
 
 function buildMessage(vaultAddress, timestamp) {
@@ -35,7 +35,34 @@ export async function POST(request) {
     return jsonError(400, "Missing signerAddress, signature, or timestamp.");
   }
 
-  if (signerAddress.toLowerCase() !== OWNER_ADDRESS.toLowerCase()) {
+  // Step 1: before trusting anything else about this address, confirm it's actually a
+  // vault we recognize, either the legacy hand-deployed vault or one VaultFactory
+  // genuinely created. An arbitrary contract someone deployed themselves can implement
+  // owner() to return whatever they like, so that read is never attempted on an address
+  // that fails this check.
+  let known;
+  try {
+    known = await isKnownVault(vaultAddress);
+  } catch (err) {
+    return jsonError(500, `Could not verify this vault address: ${err.message}`);
+  }
+  if (!known) {
+    return jsonError(403, "This address is not a vault Helm recognizes. Refusing to trust its ownership.");
+  }
+
+  // Step 2: fresh owner() for this specific vault, never cached, read the same way every
+  // other decision-driving read in this project is, cross-checked across independent RPC
+  // endpoints, not trusted from a single call.
+  let vaultOwner;
+  try {
+    vaultOwner = await getVaultOwner(vaultAddress);
+  } catch (err) {
+    return jsonError(500, `Could not verify this vault's owner: ${err.message}`);
+  }
+
+  // Step 3: the recovered signature, and the caller's claimed address, both have to match
+  // that fresh onchain owner, not a constant and not a cached value.
+  if (signerAddress.toLowerCase() !== vaultOwner.toLowerCase()) {
     return jsonError(403, "Connected wallet is not authorized to approve trades for this vault.");
   }
 
@@ -51,7 +78,7 @@ export async function POST(request) {
   } catch {
     return jsonError(403, "Could not verify the approval signature.");
   }
-  if (recovered.toLowerCase() !== OWNER_ADDRESS.toLowerCase()) {
+  if (recovered.toLowerCase() !== vaultOwner.toLowerCase()) {
     return jsonError(403, "Approval signature does not match the authorized wallet.");
   }
 
