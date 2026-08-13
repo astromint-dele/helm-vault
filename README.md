@@ -102,6 +102,32 @@ The contract does not know what any asset is worth and cannot, without an oracle
 enforces is which address may act, which assets can move, how much of them, and that the
 policy governing them is complete before anything moves at all.
 
+## Testnet phase
+
+X Layer testnet, chain ID 1952, evidenced with real transactions before either contract
+touched mainnet, not assumed from the fact that a mainnet version exists now. Two separate
+deployments, the original hand-configured `PolicyVault` first, the factory built around it
+three days later.
+
+**Phase 1 testnet vault.** [`0x945d7A962A2095b479ae41c79d901AFc234402a6`](https://www.oklink.com/x-layer-testnet/address/0x945d7A962A2095b479ae41c79d901AFc234402a6)
+
+| Transaction | What it proves | Gas |
+|---|---|---|
+| [Deployment](https://www.oklink.com/x-layer-testnet/tx/0x13f70323b247e0150a3de97c2545a03be1faab254eaba91404543a7c32143255) | `PolicyVault` live on testnet, 2026-08-08 morning UTC, hours before that same day's mainnet deployment below. | 1,096,253 gas at 0.02 gwei, 0.0000219 OKB |
+| [Real executeTrade, dry run](https://www.oklink.com/x-layer-testnet/tx/0xb0ee2d02a924af034a9531cd2ed85dbae478bcf3ab7f1689e6c2cb38c276386c) | The full swap path over a real RPC connection, allowlist check, approve, external call, balance-diff output measurement, all before a single unit of mainnet gas had been spent on this contract. | 118,724 gas at 0.02 gwei, 0.0000024 OKB |
+
+**Testnet vault factory.** [`0x04bC300e87a42d5B1EdeB6188A9C2609407b6DC0`](https://www.oklink.com/x-layer-testnet/address/0x04bC300e87a42d5B1EdeB6188A9C2609407b6DC0)
+
+| Transaction | What it proves | Gas |
+|---|---|---|
+| [Deployment](https://www.oklink.com/x-layer-testnet/tx/0xb1a422b539b8b60e7442de35d45887a2bf893421377b1ccc201baf6800292ddc) | `VaultFactory` live on testnet, 2026-08-11, roughly 8 minutes before the same contract's mainnet deployment the same day. | 1,835,469 gas at 0.02 gwei, 0.0000367 OKB |
+
+Both deploy blocks were located by bisecting `eth_getCode` across testnet's full history,
+not read from a deploy script's saved console output, then matched to their exact
+contract-creation transaction by sender and the receipt's own `contractAddress` field.
+Independently cross-checked against X Layer testnet's own explorer, which reports the same
+creation transaction hash for the factory.
+
 ## Every mainnet transaction, and what each one proves
 
 **Vault factory.** [`0x0e276CC211F6e25a8Ec00222737C2e4D50145cb4`](https://www.oklink.com/x-layer/address/0x0e276CC211F6e25a8Ec00222737C2e4D50145cb4)
@@ -169,6 +195,39 @@ node scripts/03-verify-liquidity.js
 
 Numbers land in `output/quotes.json` and `output/liquidity-verification.json`. The table
 above came from those files, not typed in by hand.
+
+## Price fairness threshold, calibrated not picked
+
+NAV Sentinel blocks a trade when the onchain price deviates too far from the real market
+price, warn 1%, block 2% during market hours, 2026-08-13 onward. That replaced an earlier
+pair, warn 2%, block 5%, chosen before any real liquidity had been measured against it.
+
+The original pair stopped holding up once real numbers existed to check it against. The
+liquidity table above shows confirmed price impact across all five xStocks this project
+trades, at both $100 and $500, running 0.01% to 0.21%. A 5% block threshold sat 25 to 500x
+above that observed range, wide enough that only a catastrophic failure, a broken price
+feed, a pool that had lost most of its liquidity, could ever reach it. An ordinary bad fill
+never would have, making the block threshold closer to a formality than a real guarantee.
+
+Deviation is not volatility. It measures the gap between two feeds that should be tracking
+the same real price, the onchain pool and a live market read, not how far the underlying
+stock itself moved. A large, real, same-day price move doesn't by itself produce a large
+deviation as long as both feeds keep up with it, deviation only spikes when one feed lags or
+breaks. Tightening this threshold targets that specific failure, feed mismatch, without
+making the vault any more likely to refuse a real trade on a genuinely volatile trading day.
+
+The closed-market pair, warn 1%, block 2%, was already validated against real data before
+this change, both runs against real market conditions, not synthetic ones.
+
+- Warn, real and unforced. Run during an actual weekend. Onchain wNVDAx price $227.19
+  against NVDA's real last close $223.96, a 1.44% deviation, correctly flagged warn once the
+  closed-market pair applied, a legitimate move against a stale reference, not a false alarm.
+- Block, threshold forced low to exercise the path, the deviation itself real. With the
+  block threshold set to 0.5%, a real 1.85% deviation correctly triggered block, no approval
+  prompt appeared and no trade executed.
+
+The open-market pair now matches this already-validated one, leaving roughly 5 to 10x margin
+over the observed 0.01% to 0.21% liquidity range instead of two orders of magnitude.
 
 ## Integration findings
 
