@@ -114,6 +114,24 @@ export default function HomeClient({ initialState, initialError }) {
     );
   }
 
+  // Identifies the actual decision, not the moment it was checked, so a refresh landing on
+  // the identical proposal doesn't read as a new one. "rebalance" is the only action with
+  // trade details worth distinguishing on, the rest (none, no_underweight_asset,
+  // insufficient_funds) are already fully described by the action string alone.
+  //
+  // amountHuman is rounded to the same precision ActionLine actually displays it at (2dp
+  // for a cash amount, 6dp for a token amount), not compared as a raw float. Confirmed live
+  // that two checks a couple minutes apart recompute this from live prices and land on
+  // genuinely different floats, 0.155084 vs 0.155143, for what is visibly the identical
+  // $0.16 trade — keying on the raw float would have remounted (and un-declined) this on
+  // every refresh regardless of the fix below, defeating the point.
+  const proposalKey =
+    proposal.action === "rebalance" && proposal.trade
+      ? `rebalance:${proposal.trade.fromSymbol}:${proposal.trade.toSymbol}:${proposal.trade.amountHuman.toFixed(
+          proposal.trade.fromSymbol === "USDG" ? 2 : 6
+        )}`
+      : proposal.action;
+
   return (
     <>
       <StandingWatchPanel
@@ -127,12 +145,15 @@ export default function HomeClient({ initialState, initialError }) {
           that's never been funded, only replaces this one slot, not the whole page.
           StandingWatchPanel, holdings, and price fairness (including the public "check any
           xStock" tool, which has no dependency on this vault's own balance at all) all stay
-          visible and honest below, whether this vault is funded or not. Keyed on
-          generatedAt so a fresh successful load fully remounts whichever of these renders,
-          clearing any stale approved/declined/error state from the previous proposal. */}
+          visible and honest below, whether this vault is funded or not. Keyed on the actual
+          decision, not on generatedAt, so a refresh that lands on the identical proposal
+          (nothing about the vault has actually changed) doesn't remount this and wipe local
+          state like a decline. It only remounts, clearing approved/declined/error state,
+          when the decision itself changes, a different trade, a different action, or none
+          at all. */}
       {proposal.action === "insufficient_funds" ? (
         <EmptyVaultPanel
-          key={state.generatedAt}
+          key={proposalKey}
           vaultAddress={state.vaultAddress}
           ownerAddress={state.ownerAddress}
           holdings={proposal.drift.holdings}
@@ -149,7 +170,7 @@ export default function HomeClient({ initialState, initialError }) {
             </div>
           )}
           <ProposalPanel
-            key={state.generatedAt}
+            key={proposalKey}
             proposal={proposal}
             vaultAddress={state.vaultAddress}
             ownerAddress={state.ownerAddress}
