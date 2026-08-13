@@ -666,6 +666,45 @@ input {
   color: var(--refused-bright);
 }
 
+.fairness-demo-block {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hairline);
+}
+
+.badge-demo {
+  display: inline-block;
+  font-family: var(--data);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--caution);
+  background: var(--caution-bg);
+  border: 1px solid rgba(var(--caution-rgb), 0.4);
+  border-radius: 0;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.fairness-demo-lead {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--parchment);
+  margin: 0 0 8px;
+}
+
+.fairness-demo-body {
+  font-size: 14px;
+  color: var(--fog);
+  line-height: 1.55;
+  margin: 0 0 14px;
+  max-width: 60ch;
+}
+
+.fairness-demo-btn {
+  border-color: rgba(var(--caution-rgb), 0.4);
+}
+
 /* ---------- public price check ---------- */
 
 .public-check {

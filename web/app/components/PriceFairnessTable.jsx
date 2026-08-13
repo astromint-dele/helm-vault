@@ -18,6 +18,18 @@ function spreadClassName(status) {
 // market-closed notice, a stablecoin note, a no-underlying-equity note), never a fabricated
 // "feed" staleness claim. There is no feed in this system, prices come from a live onchain
 // quote and a live market read, compared once, at the moment this proposal was generated.
+// Navigates with demoBlockThreshold=0 added to whatever's already in the URL, preserving
+// ?vault= (and anything else) rather than replacing the whole query string, so triggering
+// the demo from a non-default vault doesn't silently bounce the visitor back to the demo
+// vault. The previous version of this link (a bare href="?demoBlockThreshold=0") lost that
+// context, this doesn't.
+function triggerDemo() {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  url.searchParams.set("demoBlockThreshold", "0");
+  window.location.href = url.toString();
+}
+
 export default function PriceFairnessTable({ navStatus, holdings, limitPct }) {
   const rows = holdings
     .map((h) => ({ ...h, nav: navStatus[h.address] }))
@@ -73,6 +85,26 @@ export default function PriceFairnessTable({ navStatus, holdings, limitPct }) {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Deliberately its own visually distinct block, not a link sitting in the header row
+          next to live numbers with no context — that's exactly what got removed before,
+          because it read as fake, an unconditional link with no signal behind it. This says
+          plainly what it is and isn't: the same real check above, same real prices, only the
+          threshold is temporarily tightened so a normal small spread counts as a failure. */}
+      <div className="fairness-demo-block">
+        <span className="badge-demo">Demonstration</span>
+        <p className="fairness-demo-lead">See Helm refuse a trade</p>
+        <p className="fairness-demo-body">
+          Runs the identical check shown above, this vault&apos;s real onchain price against
+          today&apos;s real market price, the same code path, not a separate mock. The only
+          thing different is the block threshold, tightened from {limitPct}% down to 0% so an
+          ordinary, tiny spread is enough to trigger it. This is a demonstration, not a live
+          alert, nothing here reflects the vault&apos;s actual current risk.
+        </p>
+        <button type="button" className="refresh-btn mono fairness-demo-btn" onClick={triggerDemo}>
+          Run it now
+        </button>
       </div>
     </div>
   );
