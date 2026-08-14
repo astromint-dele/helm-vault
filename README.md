@@ -153,6 +153,61 @@ not estimated. The most expensive single action recorded is the factory's own de
 1,835,445 gas. The cheapest is the demo vault's deposit, 71,637 gas. At X Layer's typical gas
 price, every transaction in this project cost a fraction of a cent.
 
+## Adversarial checks, proven on mainnet and against the live API
+
+Every refusal described above is about price fairness. The five checks below test the other
+guarantee, that the constraints actually stop a bad action, both onchain in `PolicyVault` and
+off chain in the API that stands between a browser and the contract, not just in the code that
+describes them. Each is a deliberate, real attempt against a disposable throwaway vault created
+and broken for this purpose alone,
+[`0x74ad2C85EB829c0045F3177bb980Aa3C21e0f517`](https://www.oklink.com/x-layer/address/0x74ad2C85EB829c0045F3177bb980Aa3C21e0f517),
+never funded, never used for anything else. Created through the same factory as every other
+vault in this project,
+[creation tx](https://www.oklink.com/x-layer/tx/0xfcea0d790f0b6d20796e3bc2b42e03e256be09aa2ac6177f667b27e9590da4a2).
+
+| Transaction | What it proves | Gas |
+|---|---|---|
+| [Trade in a token never allowlisted](https://www.oklink.com/x-layer/tx/0xfe77fd4015d8a26360482f5ace8a89e232c2766767006e93dd002dab9b08beef) | Reverted `PolicyVault: fromToken not allowlisted`. The contract checks every token against its own allowlist before moving anything, not just the ones the UI happens to offer. | 35,643 gas at 0.02 gwei, 0.00000071 OKB |
+| [Trade above the per-trade size cap](https://www.oklink.com/x-layer/tx/0x5da008be1ef923ac8c0ce7a9b9b4af39e7a8f800db18575c558e19bbe2acbf37) | Reverted `PolicyVault: exceeds max trade size`. The owner-set spend ceiling holds even when the trade is sent by the vault's own authorized agent, in an otherwise well-formed trade. | 40,313 gas at 0.02 gwei, 0.00000081 OKB |
+| [Trade against an incomplete policy](https://www.oklink.com/x-layer/tx/0x6fa6e656af26989dfdc3dfa2f6d25be9154ed36f9c4440134bdb4effeea5ff00) | Reverted `PolicyVault: policy incomplete, targets must sum to 100%`. The policy was deliberately broken first, one of the vault's four tokens disallowed, dropping the total to 9000 bps ([break tx](https://www.oklink.com/x-layer/tx/0xb4b5e6c49d71e3c4b478f122f4d4513ace05afbdd61c6eb8449161b34da5f372)), confirming the contract refuses to execute anything at all against an incomplete policy, not just a bad trade within a complete one. | 33,391 gas at 0.02 gwei, 0.00000067 OKB |
+| [A non-agent wallet calling executeTrade directly](https://www.oklink.com/x-layer/tx/0x2e555837f3b23c73d57e32e56c4d3616b365103409c32fd72932d45f64bf4059) | Reverted `PolicyVault: caller is not the agent`. Called from a freshly generated, unrelated wallet, [`0x1c683AfD583e4F7C12932Bc8Edb9573b76836Ac8`](https://www.oklink.com/x-layer/address/0x1c683AfD583e4F7C12932Bc8Edb9573b76836Ac8), funded with a trace amount of OKB for gas ([funding tx](https://www.oklink.com/x-layer/tx/0xabbba0962e7dfca94b4e27791330f5ebbfc5734f07629e61ee2414059e4ac3ff)), bypassing the app and the owner's approval signature entirely. | 26,131 gas at 0.02 gwei, 0.00000052 OKB |
+
+Every one of the four reason strings above is confirmed twice, once from the transaction's own
+receipt (a `status` of `0`, reverted) and once independently from the decoded revert reason X
+Layer's own explorer shows for that same transaction, not just from local script output. Total
+cost for
+the throwaway vault, the deliberate policy break, the burner wallet funding, and all four
+reverts together, 0.0000384 OKB, a fraction of a cent. Reproducible end to end with
+`contracts/scripts/adversarial-reverts.js`.
+
+The fourth row above, a non-agent wallet calling `executeTrade` directly, tests `onlyAgent` on
+the contract itself. It does not test the API's own signature verification, that check lives
+entirely off chain, in `/api/approve`, and rejects before a transaction is ever built, so it
+has no transaction hash to show. It is real code with a real security consequence if it were
+wrong, so it gets tested directly, against the live production API, not simulated.
+
+### Approval signature verification, tested against the live API
+
+Two attempts, both against the throwaway vault above, both real HTTP requests to
+`helmfi-agent.vercel.app/api/approve`, no gas, no transaction, since neither is meant to get
+far enough to reach one.
+
+**Case A.** A wallet that genuinely isn't the vault's owner signs a real approval for itself
+and submits it honestly. Rejected, HTTP 403,
+`Connected wallet is not authorized to approve trades for this vault.`. Caught by the route's
+plain comparison against the vault's own onchain `owner()`.
+
+**Case B.** The request claims to be signed by the real owner,
+[`0x24e8FBe180128528DE6242cb7cC2618b7dbc4862`](https://www.oklink.com/x-layer/address/0x24e8FBe180128528DE6242cb7cC2618b7dbc4862),
+but the attached signature was actually produced by the same unrelated wallet from Case A.
+Rejected, HTTP 403, `Approval signature does not match the authorized wallet.`. Caught by
+`ethers.verifyMessage` recovering the real signer from the signature and checking that against
+the vault's own onchain owner, not against whatever `signerAddress` the request body claimed.
+This is the case that actually matters, the route never trusts a caller's own word about who
+signed something, it verifies.
+
+Reproducible with `contracts/scripts/wrong-signer-approval.js`.
+
 ## The three presets
 
 Every vault the factory creates starts from one of three fixed policies. Each row sums to
@@ -296,6 +351,27 @@ refuse to parse rather than accept.
 Cost, large. This is a trust and validation problem before it is a parsing problem. A
 misread instruction acting on real money is worse than the current fixed policy, so the hard
 part is the refusal logic, not the parser.
+
+**Batched exit to cash.** Right now the only way out of a vault is withdrawing each asset
+separately, raw token, which leaves the owner holding dust positions across up to four tokens.
+This would be a single action that sells every non-cash holding back to USDG so the owner can
+withdraw once.
+Cost, 3 to 5 days. No new Solidity, `executeTrade` already takes one trade per call, and the
+existing per-trade caps do not block a full exit under any factory preset today, checked
+directly, `maxTradeSize` is unset (unlimited) on every asset except USDG, and USDG's own
+holding cap is unset too, so neither selling out of a position nor accumulating USDG runs into
+a cap by default. The missing piece is a proposal path, the current rebalance logic only ever
+proposes one overweight asset into one underweight asset, at half the drift gap, never a full
+sell-everything sequence. NAV Sentinel's honest behavior for an exit is not the same as for a
+rebalance, refusing the whole exit because one asset's price can't be confirmed strands the
+owner, but silently ignoring the check breaks the guarantee, so the right behavior is to sell
+whatever can be priced fairly and, for the one asset that can't, refuse only that leg and fall
+back to the existing raw-token `withdraw`, which has no price dependency at all, rather than
+blocking everything or trading blind. The pieces this leans on, single-trade execution,
+per-asset NAV checks that are already independent of each other, and a working raw withdraw,
+all already exist. The real work is a new proposal-generation path that bypasses the drift
+correction factor for exit intent, and a UI that sequences several approvals with honest
+partial-failure handling instead of assuming every leg succeeds.
 
 **Marketplace listing.** Packaging and listing requirements external to this codebase.
 Cost, unknown, and not really ours to estimate. There is no visibility into okx.ai's own
